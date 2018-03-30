@@ -1,0 +1,315 @@
+@require: math
+
+let single cp = string-unexplode [cp]
+
+let greek-lowercase cp cpb =
+  let s = single cp in
+  let sb = single cpb in
+    math-variant-char MathOrd (|
+      italic        = s;
+      bold-italic   = sb;
+      roman         = s;
+      bold-roman    = sb;
+      script        = s;
+      bold-script   = sb;
+      fraktur       = s;
+      bold-fraktur  = sb;
+      double-struck = s;
+    |)
+
+let-math \uniform = ${\mathrm{uniform}}
+let-math \uniadd = ${\mathrm{uniforms\_address}}
+let-math \elenum = ${\mathrm{element\_number}}
+let-math \tmu n = ${\mathrm{tmu #n}}
+let-math \load tmu = ${\mathrm{load} \angle{#tmu}}
+let-math \broadcast = ${\mathrm{broadcast}}
+let-math \ptr t = ${\app{\mathrm{ptr}}{#t}}
+let-math \u n = ${\mathrm{u #n}}
+let-math \r n = ${\mathrm{r #n}}
+let-math \y n = ${\mathrm{y}_#n}
+let-math \R at = ${\app{\mathrm{R}}{#at}}
+let-math \Z = ${\mathrm{Z}}
+let-math \N = ${\mathrm{N}}
+let-math \C = ${\mathrm{C}}
+let-math \fst at = ${\app{fst}{#at}}
+let-math \rotate at i = ${\app{rotate}{#at, #i}}
+let-math \dom c = ${\app{dom}{#c}}
+let-math \wrbefore = ${wr_{before}}
+let-math \array b = ${\app{array}{#b}}
+let-math \inc y = ${\app{inc}{#y}}
+let-math \notfull t = ${\app{notfull}{#t}}
+let-math \map f x = ${\app{map}{#f, #x}}
+let-math \colon-rel = math-char MathRel `:`
+let-math \vbar-rel = math-char MathRel `|`
+let-math \divslash = math-char MathRel `∕`
+let-math \semi-rel = math-char MathRel `;`
+let-math \psi = math-char MathOrd `Ψ`
+let-math \phi = math-char MathOrd `Φ`
+let-math \unitype n = ${\psi_#n}
+let-math \Sigma = math-char MathOrd `Σ`
+let-math \tmutype t = ${\Sigma^#t}
+let-math \tmutypen n t = ${\Sigma_#n^#t}
+let-math \merge c1 c2 c3 = ${\app{merge}{#c1, #c2, #c3}}
+let-math \setupvpmread y i = ${\app{\mathrm{setup\_vpm\_read}}{#y, #i}}
+let-math \setupvpmwrite y = ${\app{\mathrm{setup\_vpm\_write}}{#y}}
+let-math \vpmr = ${\mathrm{vpmr}}
+let-math \vpmw = ${\mathrm{vpmw}}
+let-math \vpmw-addr = ${vpmw\_addr}
+let-math \thread-end = ${\mathrm{thread\_end}}
+
+let-math \prop = math-char MathOrd `φ`
+let-math \leqi = math-char MathBin `⩽`
+
+let-math \i4star = ${i4^{*}}
+let-math \i7star = ${i7^{*}}
+
+let-math \limit flags c x y = ${\app{limit}{#flags, #c, #x, #y}}
+
+let-rec repeat n mf =
+  match n with
+    | 0 -> ${}
+    | n ->
+      let p = repeat (n - 1) mf in
+      % let f ib = text-in-math MathOrd (fun ctx -> ib) in
+      let m = (arabic n) |> embed-string |> mf in
+        ${#m #p}
+
+let-math \repeat n mf = repeat n mf
+
+let-math \int n = ${\app{\mathrm{int}}{#n}}
+let-math \float = ${\mathrm{float}}
+
+let-math \newline = text-in-math MathOrd (fun ctx -> discretionary 0 inline-nil inline-nil inline-nil)
+
+let-math \brack i = ${\[#i\]}
+let-math \false = ${\mathrm{false}}
+let-math \true = ${\mathrm{true}}
+
+let-math \apprm x y = ${\app{\mathrm{#x}}{#y}}
+let-math \code x = ${\apprm{code}{#x}}
+
+let-math \if = text-in-math MathRel (fun ctx -> read-inline ctx {if})
+
+let-math \or = text-in-math MathRel (fun ctx -> read-inline ctx {or})
+let-math \and = text-in-math MathRel (fun ctx -> read-inline ctx {and})
+let-math \then = text-in-math MathRel (fun ctx -> read-inline ctx {then})
+let-math \else = text-in-math MathRel (fun ctx -> read-inline ctx {else})
+let-math \flags i c = ${flags \brack{#i} \brack{#c}}
+
+let-math \Z = ${\mathrm{Z}}
+let-math \N = ${\mathrm{N}}
+let-math \C = ${\mathrm{C}}
+
+let-math \set cc = ${\app{\mathrm{set}}{#cc}}
+let-math \clear cc = ${\app{\mathrm{clear}}{#cc}}
+
+let-math \if-else p t e =
+  let sp = text-in-math MathOrd (fun ctx -> discretionary 0 inline-nil inline-nil inline-nil) in
+    ${#sp \if #p \then #t \else #e}
+
+let-math \any c = ${\apprm{any}{#c}}
+let-math \all c = ${\apprm{all}{#c}}
+
+let-math \iszero n = ${\app{iszero}{#n}}
+let-math \isneg n = ${\app{isneg}{#n}}
+let-math \flagof n = ${\app{flag\_of}{#n}}
+
+let-math \and-also-breakable = text-in-math MathOrd (fun ctx -> discretionary 0 (inline-skip 30pt) inline-fil inline-fil)
+
+let-math \uninitialized = ${\mathrm{uninitialized}}
+let-math \jmp x = ${\app{\mathrm{jmp}}{#x}}
+let-math \jmpif qc x = ${\mathrm{if} \ #qc \ \apprm{jmp}{#x}}
+
+let-math \models = math-char MathRel `⊨`
+
+let-math \vdash = math-char MathRel `⊢`
+let-math \sigjd env s trans =
+  let b = text-in-math MathOrd (fun ctx -> discretionary 10 inline-nil inline-fil inline-fil) in
+  let ts = Math.concat ${#b \vbar-rel} trans in
+  ${#env \vdash #s \colon-rel #ts}
+let-math \instjd envs s trans =
+  let ts = Math.concat ${\vbar-rel} trans in
+  let es = Math.concat ${\semi-rel} envs in
+  ${#es \vdash #s \colon-rel #ts}
+let-math \flagjd env s trans =
+  let b = text-in-math MathOrd (fun ctx -> discretionary 10 inline-nil inline-fil inline-fil) in
+  let ts = Math.concat ${#b \vbar-rel} trans in
+  ${#env \vdash_{flags} #s \colon-rel #ts}
+let-math \tyflagjd env s trans =
+  let b = text-in-math MathOrd (fun ctx -> discretionary 10 inline-nil inline-fil inline-fil) in
+  let ts = Math.concat ${#b \vbar-rel} trans in
+  ${#env \models #s \colon-rel #ts}
+
+let-math \ppjd envs s trans posts =
+  let ts = Math.concat ${\vbar-rel} trans in
+  let es = Math.concat ${\semi-rel} envs in
+  let ps = Math.concat ${\semi-rel} posts in
+  ${#es \vdash #s \colon-rel #ts \semi-rel #ps}
+
+let-math \whjd env s = ${#env \vdash #s}
+
+% let-math \line-breakable =
+  % let ib = discretionary 0 inline-nil inline-nil inline-nil in
+    % text-in-math MathOrd (fun ctx -> ib)
+
+let-rec max
+  | (x :: y :: zs) =
+    if x >' y
+      then max (x :: zs)
+      else max (y :: zs)
+  | (x :: []) = x
+
+let rectangle (x, y) w h =
+  start-path (x, y)
+    |> line-to (x +' w, y)
+    |> line-to (x +' w, y +' h)
+    |> line-to (x, y +' h)
+    |> close-with-line
+
+let space =
+  inline-glue 30pt 0pt 0pt
+
+let-math \for = text-in-math MathRel (fun ctx -> read-inline ctx {for})
+
+let-inline ctx \space = inline-skip 10pt
+
+let-inline ctx \breakable =
+  discretionary 0 inline-nil inline-fil inline-fil
+
+let-inline ctx \breakable1 =
+  discretionary 0 inline-nil inline-fil (inline-fil ++ inline-skip (0pt -' 10pt))
+
+let-math \derivel ms m2 =
+  text-in-math MathOrd (fun ctx -> (
+    let cw = get-text-width ctx in
+
+    let ibs = List.map (fun m1 -> embed-math ctx m1) ms in
+    let ib1 = List.fold-left (fun x y -> x ++ (discretionary (-1) space inline-fil inline-fil) ++ y) inline-fil ibs ++ inline-fil in
+    let ib2 = inline-fil ++ (embed-math ctx m2) ++ inline-fil in
+    let ws = List.map get-natural-width (ib2 :: ibs) in
+    let w = length-min cw (max ws) in
+    let thickness = 0.5pt in
+    let gap = 2pt in
+    let bar =
+      inline-graphics w (thickness +' gap) gap (fun (x, y) ->
+        [ fill (Gray(0.)) (rectangle (x, y) w thickness); ]
+      )
+    in
+      line-stack-bottom [
+        embed-block-bottom ctx w (fun ctx1 -> line-break true true ctx1 ib1);
+        bar;
+        embed-block-bottom ctx w (fun ctx1 -> line-break true true ctx1 ib2);
+      ]
+  ))
+
+let-math \nu = greek-lowercase 0x1D708 0x1D742
+let-math \iota = greek-lowercase 0x1D704 0x1D73E
+let-math \epsilon = greek-lowercase 0x1D700 0x1D73A
+let-math \alpha = greek-lowercase 0x1D6FC 0x1D736
+
+let-math \context = math-char MathOrd `Γ`
+let-math \vpmstate = math-char MathOrd `Π`
+let-math \forall = math-char MathOrd `∀`
+let-math \state = math-char MathOrd `Θ`
+let-math \dot-rel = math-char MathBin `.`
+% let-math \mul = math-char MathBin `*`
+
+let-math \conjunction = math-char MathBin `∧`
+let-math \logical-or = math-char MathBin `∨`
+let-math \range = math-char MathBin `..`
+
+let-math \times = math-char MathBin `×`
+let-math \circ = math-char MathBin `∘`
+let-math \in = math-char MathBin `∈`
+let-math \nin = math-char MathBin `∉`
+let-math \neq = math-char MathBin `≠`
+let-math \leq = math-char MathBin `≤`
+let-math \le = math-char MathBin `<`
+let-math \geq = math-char MathBin `≥`
+let-math \conj = math-char MathBin `::`
+let-math \syntneq = math-char MathRel `≢`
+let-math \def = math-char MathRel `≝`
+let-math \vpmto = ${\to} % math-char MathRel `⇀`
+let-math \mapsto = math-char MathRel `↦`
+
+let-math \memory = math-char MathBin `Ξ`
+let-math \memory-subset = math-char MathOrd `Ω`
+let-math \unwrap-ptr = ${unwrap_{\memory}}
+
+let-math \memred = ${\to_{\memory}}
+let-math \memsred = ${\to_{\memory-subset}}
+
+let-math \Lambda = math-char MathOrd `Λ`
+let-math \subtype-of = math-char MathBin `<:`
+
+let-math \vec x y = ${\apprm{vec}{#x, #y}}
+let-math \concat x y = ${\app{concat}{#x, #y}}
+
+let-math \size-of x = ${\app{size\_of}{#x}}
+let-math \dma-load y i t = ${\app{dma\_load}{#y, #i, #t}}
+let-math \dma-store x t = ${\app{dma\_store}{#x, #t}}
+
+let-math \type-preserving = ${\mathrm{type\_preserving}}
+
+let-math \setup-dma-load x y = ${\apprm{setup\_dma\_load}{#x, #y}}
+let-math \start-dma-load x = ${\apprm{start\_dma\_load}{#x}}
+let-math \wait-dma-load = ${\mathrm{wait\_dma\_load}}
+
+let-math \setup-dma-store x y = ${\apprm{setup\_dma\_store}{#x, #y}}
+let-math \start-dma-store x = ${\apprm{start\_dma\_store}{#x}}
+let-math \wait-dma-store = ${\mathrm{wait\_dma\_store}}
+
+let-math \join ms =
+  let m = Math.concat ${\semi-rel} ms in m
+
+let-math \and-also-short = text-in-math MathOrd (fun ctx -> inline-glue 14pt 2pt 0pt)
+let-math \set-minus = text-in-math MathBin (fun ctx -> read-inline ctx {\\})
+let-math \rab14 = ${\brace{\mathrm{ra14}, \mathrm{rb14}}}
+let-math \regctx state = ${\app{regctx}{#state}}
+
+let-inline ctx \right x =
+  let ib = read-inline ctx x in
+  inline-fil ++ ib
+
+let-math \tuple mlst =
+  let inner = Math.concat ${,} mlst in
+    ${\paren{\math-skip!(2pt)#inner\math-skip!(1pt)}}
+
+let-math \pair m1 m2 =
+  ${\tuple![${#m1}; ${#m2}]}
+
+let quad-indent ctx =
+  inline-skip (get-font-size ctx)
+
+let defc = ${::=}
+
+let surround l ib = inline-skip l ++ ib ++ inline-skip l
+
+let-math \BNFi desc nontm mlst =
+  text-in-math MathOrd (fun ctx ->
+    (
+      let l = get-text-width ctx -' get-font-size ctx in
+      let b = discretionary 0 (inline-skip 5pt ++ inline-fil) inline-fil inline-fil in
+      embed-block-top ctx l (fun ctx ->
+        (
+        let x = text-in-math MathOrd (fun ctx ->
+          discretionary 0 inline-nil inline-fil (inline-skip 5pt)
+        ) in
+        let defs = Math.concat ${#x \|} mlst in
+        let ib = embed-math ctx nontm ++ surround 3pt (embed-math ctx defc)
+              ++ embed-math ctx defs ++ b ++ read-inline ctx desc in
+          line-break true true ctx ib
+        )
+      )
+    )
+  )
+
+let-math \BNF nontm mlst =
+  let sp = text-in-math MathOrd (fun ctx -> discretionary 0 inline-nil inline-nil inline-nil) in
+  let defs = Math.concat ${#sp \|} mlst in
+    ${#nontm \mathrel{: : =} #defs}
+
+let-block ctx +BNF desc rule =
+  let r = read-inline ctx rule in
+  let d = read-inline ctx desc in
+    form-paragraph ctx (quad-indent ctx ++ r ++ (inline-skip 50pt) ++ discretionary 0 inline-nil inline-nil inline-nil ++ inline-fil ++ d)

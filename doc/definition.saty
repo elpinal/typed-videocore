@@ -1,0 +1,1878 @@
+% -*- coding: utf-8 -*-
+@import: local-std
+@import: local-math
+@require: itemize
+
+Std.document (|
+  title = {\space; VideoCore IV \breakable; Typed Assembly Language};
+  subtitle = {\breakable1; Version 0.1};
+  author = {El Pin Al};
+  show-title = true;
+  show-toc = true;
+|) '<
+  +section {Syntax} <
+    +p {
+      To define the syntax, there are some primitive terms:
+    }
+    +listing {
+      * ${i} denotes an integer.
+      * ${i4} denotes a 4-bit integer in range ${\brack{0, 15}}.
+      * ${\i4star} denotes a 4-bit integer in range ${\brack{1, 16}}.
+      * ${\i7star} denotes a 7-bit integer in range ${\brack{1, 128}}.
+      * ${f} denotes a floating-point number.
+      * ${l} denotes a label.
+      * ${nat} denotes an integer which is greater than or equal to 0.
+      * In general, ${\epsilon} denotes an empty construct.
+      * ${\alpha} denotes a variable.
+    }
+    +pn {
+      The syntax is given below.
+    }
+    +BNF {operands} {
+      ${
+        \BNF{\nu}![
+          ${n};
+          ${rr};
+        ]
+      }
+    }
+    +BNF {numbers} {
+      ${
+        \BNF{n}![
+          ${i};
+          ${f};
+        ]
+      }
+    }
+    +BNF {registers} {
+      ${
+        \BNF{r}![
+          ${rr};
+          ${wr};
+        ]
+      }
+    }
+    +BNF {readable registers} {
+      ${
+        \BNF{rr}![
+          ${rwr};
+          ${\uniform};
+          ${\elenum};
+          ${\vpmr};
+        ]
+      }
+    }
+    +BNF {unconstrained readable registers} {
+      ${
+        \BNF{urr}![
+          ${a};
+          ${\elenum};
+        ]
+      }
+    }
+    +BNF {writable registers} {
+      ${
+        \BNF{wr}![
+          ${rwr};
+          ${\uniadd};
+          ${tmu};
+          ${\broadcast};
+          ${\vpmw};
+        ]
+      }
+    }
+    +BNF {both readable and writable registers} {
+      ${
+        \BNF{rwr}![
+          ${ga};
+          ${rf};
+        ]
+      }
+    }
+    +BNF {accumulators} {
+      ${
+        \BNF{a}![
+          ${ga};
+          ${sa};
+        ]
+      }
+    }
+    +BNF {general-purpose accumulators} {
+      ${
+        \BNF{ga}![
+          ${\mathrm{r0}};
+          ${\mathrm{r1}};
+          ${\mathrm{r2}};
+          ${\mathrm{r3}};
+        ]
+      }
+    }
+    +BNF {special-purpose accumulators} {
+      ${
+        \BNF{sa}![
+          ${\mathrm{r4}};
+          ${\mathrm{r5}};
+        ]
+      }
+    }
+    +BNF {register files} {
+      ${
+        \BNF{rf}![
+          ${A};
+          ${B};
+        ]
+      }
+    }
+    +BNF {locations in register file A} {
+      ${
+        \BNF{A}![
+          ${\mathrm{ra0}};
+          ${...};
+          ${\mathrm{ra31}};
+        ]
+      }
+    }
+    +BNF {locations in register file B} {
+      ${
+        \BNF{B}![
+          ${\mathrm{rb0}};
+          ${...};
+          ${\mathrm{rb31}};
+        ]
+      }
+    }
+
+    +BNF {TMU} {
+      ${
+        \BNF{tmu}![
+          ${\tmu{0}};
+          ${\tmu{1}};
+        ]
+      }
+    }
+    +BNF {VPM read queues} {
+      ${
+        \BNF{vpmq}![
+          ${\epsilon};
+          ${\paren{Y, i} \conj vpmq};
+        ]
+      }
+    }
+    +BNF {VPM Y} {
+      ${
+        \BNF{Y}![
+          ${\y{0}};
+          ${...};
+          ${\y{63}};
+        ]
+      }
+    }
+
+    +p {
+      ${
+        \BNFi!{instructions}{\iota}![
+          ${\app{\mathrm{rotate}}{wr, rr, i4}};
+          ${\app{\mathrm{mov}}{wr, \nu}};
+          ${\setupvpmread{Y}{\i4star}};
+          ${\setupvpmwrite{Y}};
+          % ${\jmp{l}};
+
+          ${\setup-dma-load{Y}{\i4star}};
+          ${\start-dma-load{rr}};
+          ${\wait-dma-load};
+
+          ${\setup-dma-store{Y}{\i7star}};
+          ${\start-dma-store{rr}};
+          ${\wait-dma-store};
+        ]
+      }
+    }
+
+    +BNF {condition classes} {
+      ${
+        \BNF{cc}![
+          ${\Z};
+          ${\N};
+          ${\C};
+        ]
+      }
+    }
+
+    +BNF {conditions} {
+      ${
+        \BNF{c}![
+          ${\set{cc}};
+          ${\clear{cc}};
+        ]
+      }
+    }
+
+    +BNF {quantified conditions} {
+      ${
+        \BNF{qc}![
+          ${\all{c}};
+          ${\any{c}};
+        ]
+      }
+    }
+
+    +BNF {signals} {
+      ${
+        \BNF{s}![
+          ${\epsilon};
+          ${\load{tmu}};
+          % ${\thread-end};
+        ]
+      }
+    }
+
+    +BNF {conditional instructions} {
+      ${
+        \BNF{ci}![
+          ${\paren{\iota, \epsilon}};
+          ${\paren{\iota, c}};
+        ]
+      }
+    }
+
+    +BNF {conditional instructions with signals} {
+      ${
+        \BNF{csi}![
+          ${\paren{ci, s}};
+        ]
+      }
+    }
+
+    +p {
+      ${
+        \BNFi!{instruction sequences}{I}![
+          ${\jmp{l} \semi-rel csi \semi-rel csi \semi-rel csi};
+          ${\paren{ci, \thread-end} \semi-rel csi \semi-rel csi};
+          ${csi \semi-rel I};
+          ${\jmpif{qc}{l} \semi-rel csi \semi-rel csi \semi-rel csi \semi-rel I};
+        ]
+      }
+    }
+
+    +BNF {register contexts} {
+      ${
+        \BNF{R}![
+          ${\epsilon};
+          ${\overwrite{R}{rr}{arr}};
+        ]
+      }
+    }
+
+    +BNF {arrays} {
+      ${
+        \BNF{arr}![
+          ${\[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n\]};
+        ]
+      }
+    }
+
+    +BNF {uniforms} {
+      ${
+        \BNF{U}![
+          ${\epsilon};
+          ${n \circ U};
+        ]
+      }
+    }
+
+    +BNF {TMU} {
+      ${
+        \BNF{T}![
+          ${\epsilon};
+          ${arr};
+          ${arr \conj arr};
+          ${arr \conj arr \conj arr};
+          ${arr \conj arr \conj arr \conj arr};
+        ]
+      }
+    }
+
+    +BNF {VPM states} {
+      ${
+        \BNF{V}![
+          ${\epsilon};
+          ${\overwrite{V}{Y}{at}};
+        ]
+      }
+    }
+
+    +BNF {programs} {
+      ${
+        \BNF{P}![
+          ${\epsilon};
+          ${\overwrite{P}{l}{I}};
+        ]
+      }
+    }
+
+    +BNF {machines} {
+      ${
+        \BNF{M}![
+          ${\tuple![
+            ${R};
+            ${U};
+            ${T};
+            ${V};
+            ${vpmq};
+            ${P};
+            ${I};
+          ]};
+        ]
+      }
+    }
+  >
+
+  +section {Type system} <
+    +p {
+      The type syntax is defined as follows:
+    }
+
+    +BNF {types} {
+      ${
+        \BNF{\tau}![
+          ${b};
+          ${at};
+          ${vt};
+          ${\psi};
+        ]
+      }
+    }
+
+    +BNF {pointers} {
+      ${
+        \BNF{p}![
+          ${nat};
+          ${\alpha};
+          ${p + p};
+          ${nat \times p};
+        ]
+      }
+    }
+
+    +BNF {basic types} {
+      ${
+        \BNF{b}![
+          ${\int{i}};
+          ${\int{?}};
+          ${\float};
+          ${\ptr{p}};
+          ${\code{\state}};
+        ]
+      }
+    }
+
+    +BNF {array types} {
+      ${
+        \BNF{at}![
+          ${\[b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b\]};
+        ]
+      }
+    }
+
+    +BNF {vector types} {
+      ${
+        \BNF{vt}![
+          ${\vec{b}{\alpha}}
+        ]
+      }
+    }
+
+    +BNF {register context types} {
+      ${
+        \BNF{\context}![
+          ${\epsilon};
+          ${\overwrite{\context}{rr}{at}};
+        ]
+      }
+    }
+
+    +BNF {uniforms types} {
+      ${
+        \BNF{\psi}![
+          ${\epsilon};
+          ${b \circ \psi};
+        ]
+      }
+    }
+
+    +BNF {TMU types} {
+      ${
+        \BNF{\Sigma}![
+          ${\epsilon};
+          ${at};
+          ${at \conj at};
+          ${at \conj at \conj at};
+          ${at \conj at \conj at \conj at};
+        ]
+      }
+    }
+
+    +BNF {VPM state types} {
+      ${
+        \BNF{\vpmstate}![
+          ${\epsilon};
+          ${\overwrite{\vpmstate}{Y}{at}};
+        ]
+      }
+    }
+
+    +BNF {VPM write addresses} {
+      ${
+        \BNF{\vpmw-addr}![
+          ${\epsilon};
+          ${Y};
+        ]
+      }
+    }
+
+    +BNF {VPM compound types} {
+      ${
+        \BNF{C}![
+          ${\tuple![
+            ${vpmq};
+            ${\vpmstate};
+            ${\vpmw-addr};
+          ]};
+        ]
+      }
+    }
+
+    +BNF {uniform-access countdowns} {
+      ${
+        \BNF{u}![
+          ${\u{0}};
+          ${\u{1}};
+          ${\u{2}};
+        ]
+      }
+    }
+
+    +BNF {state types} {
+      ${
+        \BNF{\state}![
+          ${\tuple![
+            ${\context};
+            ${\psi};
+            ${u};
+            ${\Sigma};
+            ${C};
+            ${\memory-subset};
+            ${wr};
+          ]};
+        ]
+      }
+    }
+
+    +BNF {program types} {
+      ${
+        \BNF{\phi}![
+          ${\epsilon};
+          ${\overwrite{\phi}{l}{\state}};
+        ]
+      }
+    }
+
+    +BNF {DMA load setups} {
+      ${
+        \BNF{DLS}![
+          ${\epsilon};
+          ${\paren{Y, \i4star}};
+        ]
+      }
+    }
+
+    +BNF {DMA store setups} {
+      ${
+        \BNF{DSS}![
+          ${\epsilon};
+          ${\paren{Y, \i7star}};
+        ]
+      }
+    }
+
+    +BNF {DMA loads} {
+      ${
+        \BNF{DL}![
+          ${\epsilon};
+          ${\paren{Y, \i4star, \tau}};
+        ]
+      }
+    }
+
+    +BNF {DMA stores} {
+      ${
+        \BNF{DS}![
+          ${\epsilon};
+          ${\paren{Y, \i7star, \tau}};
+          ${\type-preserving};
+        ]
+      }
+    }
+
+
+    +subsection {Propositions} <
+      +p {
+        ${p_1 \range p_2} represents a range ${\[p_1, p_2\)}.
+      }
+      +BNF {propositions} {
+        ${
+          \BNF{\prop}![
+            ${p \range p};
+            ${\prop \logical-or \prop};
+          ]
+        }
+      }
+    >
+
+    +subsection {Memory representaion} <
+      +BNF {memory subset types} {
+        ${
+          \BNF{\memory-subset}![
+            ${\brace{\memory \vbar-rel \prop}};
+          ]
+        }
+      }
+
+      +BNF {memory types} {
+        ${
+          \BNF{\memory}![
+            ${\epsilon};
+            ${\overwrite{\memory}{p}{\tau}};
+          ]
+        }
+      }
+
+      +pn {
+        The evaluation rules of memory subset types and memory types are given below.
+        The equality rules for ${p} are not defined here.
+        There are the abuses of notations of a form ${\overwrite{x}{y}{z}}.
+      }
+
+      +p {
+        ${
+          \derive{
+            \text!{${p} is in ${\prop}}
+          }{
+            \app{\brace{\memory \vbar-rel \prop}}{p} \memsred \app{\memory}{p}
+          }
+        }
+      }
+
+      +p {
+        ${
+          \derive{
+            p = p_1
+          }{
+            \app{\overwrite{\memory}{p_1}{\tau}}{p} \memred \tau
+          }
+        }
+      }
+
+      +p {
+        ${
+          \derive{
+            p \neq p_1
+          }{
+            \app{\overwrite{\memory}{p_1}{\tau}}{p} \memred \app{\memory}{p}
+          }
+        }
+      }
+
+    >
+
+    +subsection {Typing rules} <
+      +p {
+        Typing rules are defined as follows.
+
+        Note that ${\app{dom}{\context}} represents the domain of a context ${\context},
+        a map from read ${\divslash} write registers to array types.
+      }
+
+      +pn { numbers: }
+      +p {
+        ${
+          \tyjd{}{i}{\int{i}}
+          \and-also
+          \tyjd{}{f}{\float}
+        }
+      }
+
+      +pn { subtype relations: }
+      +p {
+        ${
+          \int{i} \subtype-of \int{?}
+          \and-also
+          \int{?} \subtype-of \int{?}
+          \and-also
+          \derive{
+            \forall i \dot-rel at_1 \brack{i} \subtype-of at_2 \brack{i}
+          }{
+            at_1 \subtype-of at_2
+          }
+        }
+      }
+
+      +p {
+        ${
+          \derive{
+            m \leq n
+          }{
+            \vec{b}{m} \subtype-of \vec{b}{n}
+          }
+        }
+      }
+
+      +p {
+        ${
+          \context \subtype-of \context
+          \and-also
+          \derive{
+            \context_1 \subtype-of \context_2
+          }{
+            \overwrite{\context_1}{rr}{at} \subtype-of \context_2
+          }
+        }
+      }
+
+      +pn { pointers: }
+      +p {
+        ${
+          \derive{
+            p \in \dom{\memory}
+          }{
+            \tyjd{\memory}{p}{\app{\memory}{p}}
+          }
+        }
+      }
+
+      +pn { well-formed memory subsets: }
+      +p {
+        ${
+          \derive{
+            \forall p \in \dom{\memory} \dot-rel \text!{${p \range \paren{p + \size-of{\app{\memory}{p}}}} is in ${\prop}}
+          }{
+            \whjd{}{\brace{\memory \vbar-rel \prop}}
+          }
+        }
+      }
+
+      +pn { registers: }
+      +p {
+        ${
+          \derive{
+            rr \in \app{dom}{\context}
+          }{
+            \tyjd{\context}{rr}{\app{\context}{rr}}
+          }
+
+          \and-also
+
+          \derive{
+            \unitype{1} \synteq b \circ \unitype{2}
+          }{
+            \tyjd{}{\uniform}{b} \| \unitype{1} \to \unitype{2}
+          }
+        }
+      }
+
+      +p {
+        ${
+          \tyjd{}{\elenum}{\brack{\int{0}, \int{1}, ..., \int{15}}}
+        }
+      }
+
+      +p {
+        ${
+          \derive{
+            vpmq_1 \synteq \paren{vpmq_2 \conj \paren{Y, i}}
+            \and-also
+            i \geq 2
+            \and-also
+            \tyjd{\vpmstate}{Y}{at}
+          }{
+            \sigjd{\vpmstate}{\vpmr}![
+              ${at};
+              ${vpmq_1 \to vpmq_2 \conj \paren{\inc{Y}, i - 1}};
+            ]
+          }
+        }
+      }
+
+      +p {
+        ${
+          \derive{
+            vpmq_1 \synteq \paren{vpmq_2 \conj \paren{Y, 1}}
+            \and-also
+            \tyjd{\vpmstate}{Y}{at}
+          }{
+            \sigjd{\vpmstate}{\vpmr}![
+              ${at};
+              ${vpmq_1 \to vpmq_2};
+            ]
+          }
+        }
+      }
+
+      +pn { VPM: }
+      +p {
+        ${
+            \derive{
+              Y \in \dom{\vpmstate}
+            }{
+              \tyjd{\vpmstate}{Y}{\app{\vpmstate}{Y}}
+            }
+        }
+      }
+
+      +p {
+        ${
+          \derive{
+            \tyjd{\vpmstate}{Y}{at}
+            \and-also
+            at \subtype-of vt
+          }{
+            \tyjd{\vpmstate}{\paren{Y, 1}}{vt}
+          }
+        }
+      }
+
+      +p {
+        ${
+          \derive{
+            \tyjd{\vpmstate}{Y}{at}
+            \and-also
+            at \subtype-of vt_1
+            \and-also
+            n \leq 62
+            \and-also
+            \i7star \geq 2
+            \and-also
+            \tyjd{\vpmstate}{\paren{\y{n + 1}, \i7star - 1}}{vt_2}
+          }{
+            \tyjd{\vpmstate}{\paren{\y{n}, \i7star}}{\concat{vt_1}{vt_2}}
+          }
+        }
+      }
+
+      +pn { instructions: }
+      +p {
+        ${
+          \derive{
+            rr \syntneq wr_{before}
+            \and-also
+            rr \in \app{dom}{\context}
+            \and-also
+            at \synteq \app{rotate}{\app{\context}{rr}, i4}
+          }{
+            \tyjd{wr_{before}}{\app{\mathrm{rotate}}{rwr, rr, i4}}{\context \to \overwrite{\context}{rwr}{at}} \semi-rel rwr
+          }
+        }
+      }
+      +p {
+        ${
+          \derive{
+            \tyjd{}{\uniform}{b}\ \| \ \unitype{1} \to \unitype{2}
+            \and-also
+            at \synteq \app{array}{b}
+          }{
+            \ppjd![${\u{0}}]{\app{\mathrm{rotate}}{rwr, \uniform, i4}}![
+              ${\context \to \overwrite{\context}{rwr}{at}};
+              ${\unitype{1} \to \unitype{2}};
+            ]![${rwr}]
+          }
+        }
+      }
+      +p {
+        ${
+          \derive{
+            \tyjd{}{\elenum}{at}
+          }{
+            \tyjd{}{\app{\mathrm{rotate}}{rwr, \elenum, i4}}{\context \to \overwrite{\context}{rwr}{\rotate{at}{i4}}} \semi-rel rwr
+          }
+        }
+      }
+      +p {
+        ${
+          \derive{
+            \sigjd{\vpmstate}{\vpmr}![
+              ${at};
+              ${vpmq_1 \to vpmq_2};
+            ]
+          }{
+            \sigjd{\vpmstate}{\app{\mathrm{rotate}}{rwr, \vpmr, i4}}![
+              ${vpmq_1 \to vpmq_2};
+              ${\context \to \overwrite{\context}{rwr}{\rotate{at}{i4}}};
+            ] \semi-rel rwr
+          }
+        }
+      }
+
+      +p {
+        ${
+          \derive{
+            rr \syntneq wr_{before}
+            \and-also
+            \tyjd{\context}{rr}{at}
+            \and-also
+            \fst{\rotate{at}{i4}} \synteq b
+          }{
+            \tyjd{\context\; \ wr_{before}}{\app{\mathrm{rotate}}{\broadcast, rr, i4}}{\context \to \overwrite{\context}{\r{5}}{\array{b}}}
+          }
+        }
+      }
+      +p {
+        ${
+          \derive{
+            \tyjd{}{\uniform}{b} \vbar-rel \unitype{1} \to \unitype{2}
+          }{
+            \tyjd{}{\app{\mathrm{rotate}}{\broadcast, \uniform, i4}}{\context \to \overwrite{\context}{\r{5}}{\array{b}}} \vbar-rel \unitype{1} \to \unitype{2}
+          }
+        }
+      }
+      +p {
+        ${
+          \derive{
+            \tyjd{}{\elenum}{at}
+            \and-also
+            b \synteq \fst{\rotate{at}{i4}}
+          }{
+            \tyjd{}{\app{\mathrm{rotate}}{\broadcast, \elenum, i4}}{\context \to \overwrite{\context}{\r{5}}{\array{b}}}
+          }
+        }
+      }
+      +p {
+        ${
+          \derive{
+            \sigjd{\vpmstate}{\vpmr}![
+              ${at};
+              ${vpmq_1 \to vpmq_2};
+            ]
+            \and-also
+            \fst{\rotate{at}{i4}} \synteq b
+          }{
+            \sigjd{\vpmstate}{\app{\mathrm{rotate}}{\broadcast, \vpmr, i4}}![
+              ${\context \to \overwrite{\context}{\r{5}}{\array{b}}};
+              ${vpmq_1 \to vpmq_2};
+            ]
+          }
+        }
+      }
+
+      +p {
+        ${
+          \derive{
+            rr \syntneq wr_{before}
+            \and-also
+            \tyjd{\context}{rr}{at}
+            \and-also
+            \fst{\rotate{at}{i4}} \synteq \ptr{p}
+            \and-also
+            \tyjd{\memory}{p}{\unitype{2}}
+          }{
+            \tyjd{\context\; \memory \; \ wr_{before}}{\app{\mathrm{rotate}}{\uniadd, rr, i4}}{\unitype{1} \to \unitype{2}}\ \| u \to \u{2}
+          }
+        }
+      }
+      +p {
+        ${
+          \derive{
+            \tyjd{}{\uniform}{\ptr{p}} \vbar-rel \unitype{1} \to \unitype{2}
+            \and-also
+            \tyjd{\memory}{p}{\unitype{3}}
+          }{
+            \tyjd{\memory}{\app{\mathrm{rotate}}{\uniadd, \uniform, i4}}{\unitype{1} \to \unitype{3}}\ \| \u{0} \to \u{2}
+          }
+        }
+      }
+      +p {
+        ${
+          \derive{
+            \sigjd{\vpmstate}{\vpmr}![
+              ${at};
+              ${vpmq_1 \to vpmq_2};
+            ]
+            \and-also
+            \fst{\rotate{at}{i4}} \synteq \ptr{p}
+            \and-also
+            \tyjd{\memory}{p}{\unitype{2}}
+          }{
+            \sigjd{\vpmstate \; \ \memory}{\app{\mathrm{rotate}}{\uniadd, \vpmr, i4}}![
+              ${\unitype{1} \to \unitype{2}};
+              ${vpmq_1 \to vpmq_2};
+              ${u \to \u{2}};
+            ]
+          }
+        }
+      }
+
+      +p {
+        ${
+          \derive{
+            rr \syntneq wr_{before}
+            \and-also
+            \tyjd{\context}{rr}{at}
+            \and-also
+            \notfull{\tmutype{tmu}}
+          }{
+            \tyjd{\context\; \ \memory \; \ wr_{before}}{\app{\mathrm{rotate}}{tmu, rr, i4}}{\tmutype{tmu} \to \rotate{\map{unwrap_{\memory}}{at}}{i4} \conj \tmutype{tmu}}
+          }
+        }
+      }
+      +p {
+        ${
+          \derive{
+            \tyjd{}{\uniform}{\ptr{p}}\ \| \unitype{1} \to \unitype{2}
+            \and-also
+            \tyjd{\memory}{p}{b}
+            \and-also
+            \notfull{\tmutype{tmu}}
+          }{
+            \sigjd{\u{0} \; \ \memory}{\app{\mathrm{rotate}}{tmu, \uniform, i4}}![
+              ${\tmutype{tmu} \to \array{b} \conj \tmutype{tmu}};
+              ${\unitype{1} \to \unitype{2}};
+            ]
+          }
+        }
+      }
+      +p {
+        ${
+          \derive{
+            \sigjd{\vpmstate}{\vpmr}![
+              ${at};
+              ${vpmq_1 \to vpmq_2};
+            ]
+            \and-also
+            \notfull{\tmutype{tmu}}
+          }{
+            \tyjd{\vpmstate \; \ \memory}{\app{\mathrm{rotate}}{tmu, \vpmr, i4}}{\tmutype{tmu} \to \rotate{\map{\unwrap-ptr}{at}}{i4} \conj \tmutype{tmu}}
+          }
+        }
+      }
+
+      +p {
+        ${
+          \derive{
+            rr \syntneq wr_{before}
+            \and-also
+            rr \in \app{dom}{\context}
+            \and-also
+            at \synteq \app{rotate}{\app{\context}{rr}, i4}
+          }{
+            \sigjd{wr_{before}}{\app{\mathrm{rotate}}{\vpmw, rr, i4}}![
+              ${\vpmstate \to \overwrite{\vpmstate}{Y}{at}};
+              ${Y \to \inc{Y}};
+            ]
+          }
+        }
+      }
+      +p {
+        ${
+          \derive{
+            \tyjd{}{\uniform}{b}\ \| \ \unitype{1} \to \unitype{2}
+            \and-also
+            at \synteq \app{array}{b}
+          }{
+            \sigjd{\u{0}}{\app{\mathrm{rotate}}{\vpmw, \uniform, i4}}![
+              ${\vpmstate \to \overwrite{\vpmstate}{Y}{at}};
+              ${\unitype{1} \to \unitype{2}};
+              ${Y \to \inc{Y}};
+            ]
+          }
+        }
+      }
+      +p {
+        ${
+          \derive{
+            \tyjd{}{\elenum}{at}
+          }{
+            \sigjd{}{\app{\mathrm{rotate}}{\vpmw, \elenum, i4}}![
+              ${\vpmstate \to \overwrite{\vpmstate}{Y}{\rotate{at}{i4}}};
+              ${Y \to \inc{Y}};
+            ]
+          }
+        }
+      }
+
+      +p {
+        ${
+          \derive{
+            \tyjd{}{n}{b}
+          }{
+            \tyjd{}{\app{\mathrm{mov}}{rwr, n}}{\context \to \overwrite{\context}{rwr}{\app{array}{b}}}\ \; \  rwr
+          }
+        }
+      }
+      +p {
+        ${
+          \derive{
+            \tyjd{\context}{urr}{at}
+          }{
+            \tyjd{}{\app{\mathrm{mov}}{rwr, urr}}{\context \to \overwrite{\context}{rwr}{at}}\ \; \  rwr
+          }
+        }
+      }
+      +p {
+        ${
+          \derive{
+            \tyjd{\context}{rf}{at}
+            \and-also
+            rf \syntneq wr_{before}
+          }{
+            \tyjd{wr_{before}}{\app{\mathrm{mov}}{rwr, rf}}{\context \to \overwrite{\context}{rwr}{at}}\ \; \  rwr
+          }
+        }
+      }
+      +p {
+        ${
+          \derive{
+            \tyjd{}{\uniform}{b}\ \| \ \unitype{1} \to \unitype{2}
+          }{
+            \tyjd{\u{0}}{\app{\mathrm{mov}}{rwr, \uniform}}{\context \to \overwrite{\context}{rwr}{\app{array}{b}}}\ \| \unitype{1} \to \unitype{2} \; \  rwr
+          }
+        }
+      }
+      +p {
+        ${
+          \derive{
+            \sigjd{\vpmstate}{\vpmr}![
+              ${at};
+              ${vpmq_1 \to vpmq_2};
+            ]
+          }{
+            \sigjd{\vpmstate}{\app{\mathrm{mov}}{rwr, \vpmr}}![
+              ${\context \to \overwrite{\context}{rwr}{at}};
+              ${vpmq_1 \to vpmq_2};
+            ] \semi-rel rwr
+          }
+        }
+      }
+
+      +p {
+        ${
+          \derive{
+            \tyjd{}{n}{b}
+          }{
+            \tyjd{}{\app{\mathrm{mov}}{\broadcast, n}}{\context \to \overwrite{\context}{\r{5}}{\array{b}}}
+          }
+        }
+      }
+      +p {
+        ${
+          \derive{
+            \tyjd{\context}{urr}{at}
+            \and-also
+            \fst{at} \synteq b
+          }{
+            \tyjd{\context}{\app{\mathrm{mov}}{\broadcast, urr}}{\context \to \overwrite{\context}{\r{5}}{\array{b}}}
+          }
+        }
+      }
+      +p {
+        ${
+          \derive{
+            \tyjd{\context}{rf}{at}
+            \and-also
+            \fst{at} \synteq b
+            \and-also
+            rf \syntneq \wrbefore
+          }{
+            \tyjd{\context \; \ \wrbefore}{\app{\mathrm{mov}}{\broadcast, rf}}{\context \to \overwrite{\context}{\r{5}}{\array{b}}}
+          }
+        }
+      }
+      +p {
+        ${
+          \derive{
+            \tyjd{}{\uniform}{b} \vbar-rel \unitype{1} \to \unitype{2}
+          }{
+            \tyjd{\u{0}}{\app{\mathrm{mov}}{\broadcast, \uniform}}{\context \to \overwrite{\context}{\r{5}}{\array{b}}} \vbar-rel \unitype{1} \to \unitype{2}
+          }
+        }
+      }
+      +p {
+        ${
+          \derive{
+            \sigjd{\vpmstate}{\vpmr}![
+              ${at};
+              ${vpmq_1 \to vpmq_2};
+            ]
+          }{
+            \sigjd{\vpmstate}{\app{\mathrm{mov}}{\broadcast, \vpmr}}![
+              ${\context \to \overwrite{\context}{\r{5}}{at}};
+              ${vpmq_1 \to vpmq_2};
+            ]
+          }
+        }
+      }
+
+      +p {
+        ${
+          \derive{
+            \tyjd{\context}{a}{at}
+            \and-also
+            \fst{at} \synteq \ptr{p}
+            \and-also
+            \tyjd{\memory}{p}{\unitype{2}}
+          }{
+            \sigjd{\context \; \ \memory}{\app{\mathrm{mov}}{\uniadd, a}}![
+              ${\unitype{1} \to \unitype{2}};
+              ${u \to \u{2}};
+            ]
+          }
+        }
+      }
+
+      +p {
+        ${
+          \derive{
+            \tyjd{\context}{rf}{at}
+            \and-also
+            \fst{at} \synteq \ptr{p}
+            \and-also
+            \tyjd{\memory}{p}{\unitype{2}}
+            \and-also
+            rf \syntneq \wrbefore
+          }{
+            \sigjd{\context \; \ \memory \; \ \wrbefore}{\app{\mathrm{mov}}{\uniadd, rf}}![
+              ${\unitype{1} \to \unitype{2}};
+              ${u \to \u{2}};
+            ]
+          }
+        }
+      }
+
+      +p {
+        ${
+          \derive{
+            \sigjd{}{\uniform}![
+              ${\ptr{p}};
+              ${\unitype{1} \to \unitype{2}};
+            ]
+            \and-also
+            \tyjd{\memory}{p}{\unitype{3}}
+          }{
+            \sigjd{\memory}{\app{\mathrm{mov}}{\uniadd, \uniform}}![
+              ${\unitype{1} \to \unitype{3}};
+              ${\u{0} \to \u{2}};
+            ]
+          }
+        }
+      }
+
+      +p {
+        ${
+          \derive{
+            \sigjd{\vpmstate}{\vpmr}![
+              ${at};
+              ${vpmq_1 \to vpmq_2};
+            ]
+            \and-also
+            \fst{at} \synteq \ptr{p}
+            \and-also
+            \tyjd{\memory}{p}{\unitype{2}}
+          }{
+            \sigjd{\vpmstate \; \ \memory}{\app{\mathrm{mov}}{\uniadd, \vpmr}}![
+              ${vpmq_1 \to vpmq_2};
+              ${\unitype{1} \to \unitype{2}};
+              ${u \to \u{2}};
+            ]
+          }
+        }
+      }
+
+      +p {
+        ${
+          \derive{
+            \tyjd{\context}{a}{at}
+            \and-also
+            \notfull{\tmutype{tmu}}
+          }{
+            \tyjd{\context \; \ \memory}{\app{\mathrm{mov}}{tmu, a}}{\tmutype{tmu} \to \map{\unwrap-ptr}{at} \conj \tmutype{tmu}}
+          }
+        }
+      }
+
+      +p {
+        ${
+          \derive{
+            \tyjd{\context}{rf}{at}
+            \and-also
+            \notfull{\tmutype{tmu}}
+            \and-also
+            rf \syntneq \wrbefore
+          }{
+            \tyjd{\context \; \ \memory \; \ \wrbefore}{\app{\mathrm{mov}}{tmu, rf}}{\tmutype{tmu} \to \map{\unwrap-ptr}{at} \conj \tmutype{tmu}}
+          }
+        }
+      }
+
+      +p {
+        ${
+          \derive{
+            \tyjd{}{\uniform}{\ptr{p}}\ \| \ \unitype{1} \to \unitype{2}
+            \and-also
+            \tyjd{\memory}{p}{b}
+            \and-also
+            \notfull{\tmutype{tmu}}
+          }{
+            \tyjd{\u{0} \; \ \memory}{\app{\mathrm{mov}}{tmu, \uniform}}{\tmutype{tmu} \to \array{b} \conj \tmutype{tmu}}\ \| \unitype{1} \to \unitype{2}
+          }
+        }
+      }
+
+      +p {
+        ${
+          \derive{
+            \sigjd{\vpmstate}{\vpmr}![
+              ${at};
+              ${vpmq_1 \to vpmq_2};
+            ]
+            \and-also
+            \notfull{\tmutype{tmu}}
+          }{
+            \sigjd{\vpmstate \; \ \memory}{\app{\mathrm{mov}}{tmu, \vpmr}}![
+              ${vpmq_1 \to vpmq_2};
+              ${\tmutype{tmu} \to \map{\unwrap-ptr}{at} \conj \tmutype{tmu}};
+            ]
+          }
+        }
+      }
+
+      +p {
+        ${
+          \derive{
+            \tyjd{}{n}{b}
+          }{
+            \sigjd{}{\app{\mathrm{mov}}{\vpmw, n}}![
+              ${\vpmstate \to \overwrite{\vpmstate}{Y}{\array{b}}};
+              ${Y \to \inc{Y}};
+            ]
+          }
+        }
+      }
+      +p {
+        ${
+          \derive{
+            \tyjd{\context}{urr}{at}
+          }{
+            \sigjd{}{\app{\mathrm{mov}}{\vpmw, urr}}![
+              ${\vpmstate \to \overwrite{\vpmstate}{Y}{at}};
+              ${Y \to \inc{Y}};
+            ]
+          }
+        }
+      }
+      +p {
+        ${
+          \derive{
+            \tyjd{\context}{rf}{at}
+            \and-also
+            rf \syntneq wr_{before}
+          }{
+            \sigjd{wr_{before}}{\app{\mathrm{mov}}{\vpmw, rf}}![
+              ${\vpmstate \to \overwrite{\vpmstate}{Y}{at}};
+              ${Y \to \inc{Y}};
+            ]
+          }
+        }
+      }
+      +p {
+        ${
+          \derive{
+            \tyjd{}{\uniform}{b}\ \| \ \unitype{1} \to \unitype{2}
+          }{
+            \sigjd{\u{0}}{\app{\mathrm{mov}}{\vpmw, \uniform}}![
+              ${\vpmstate \to \overwrite{\vpmstate}{Y}{\array{b}}};
+              ${\unitype{1} \to \unitype{2}};
+              ${Y \to \inc{Y}};
+            ]
+          }
+        }
+      }
+
+      +p {
+        ${
+          \derive{
+            \tyjd{\vpmstate}{Y}{at}
+          }{
+            \sigjd{\vpmstate}{\setupvpmread{Y}{\i4star}}![
+              ${vpmq \to \paren{Y, \i4star} \conj vpmq};
+            ]
+          }
+        }
+      }
+
+      +p {
+        ${
+          \tyjd{}{\setupvpmwrite{Y}}{\vpmw-addr \to Y}
+        }
+      }
+
+      +p {
+        ${
+          \derive{
+            i + \i4star \leq 64
+          }{
+            \tyjd{}{\setup-dma-load{\y{i}}{\i4star}}{DLS \to \paren{\y{i}, \i4star}}
+          }
+        }
+      }
+
+      +p {
+        ${
+          \derive{
+            % FIXME: missing many pre/post conditions.
+            \tyjd{\context}{rr}{at}
+            \and-also
+            \fst{at} \synteq \ptr{p}
+            \and-also
+            \tyjd{\memory}{p}{\tau}
+            \and-also
+            \i4star \times 16 \times 4 \leq \size-of{\tau}
+          }{
+            \tyjd{\paren{Y, \i4star} \; \ \memory}{\start-dma-load{rr}}{\epsilon \to \paren{Y, \i4star, \tau}}
+          }
+        }
+      }
+
+      +p {
+        ${
+          \sigjd{}{\wait-dma-load}![
+            ${\paren{Y, \i4star, \tau} \to \epsilon};
+            ${\vpmstate \to \vpmstate \ \dma-load{Y}{\i4star}{\tau} };
+          ]
+        }
+      }
+
+
+      +p {
+        ${
+          \derive{
+            i + \i7star \leq 64
+          }{
+            \tyjd{}{\setup-dma-store{\y{i}}{\i7star}}{DSS \to \paren{\y{i}, \i7star}}
+          }
+        }
+      }
+
+      +p {
+        ${
+          % TODO: consider `i`.
+          \derive{
+            % FIXME: missing many pre/post conditions.
+            \tyjd{\context}{rr}{at_1}
+            \and-also-short
+            \fst{at_1} \synteq \ptr{p}
+            \and-also-short
+            \tyjd{\memory-subset}{p}{\tau}
+
+            \and-also-short
+
+            \tyjd{\vpmstate}{\paren{Y, \i7star}}{\tau_1}
+            \and-also-short
+            \tau_1 \subtype-of \tau
+          }{
+            \tyjd{\paren{Y, \i7star} \; \ \memory-subset}{\start-dma-store{rr}}{\epsilon \to \type-preserving}
+          }
+        }
+      }
+
+      +p {
+        ${
+          % TODO: consider `i`.
+          % FIXME: must check the end of address is in a valid region.
+          \derive{
+            % FIXME: missing many pre/post conditions.
+            \tyjd{\context}{rr}{at_1}
+            \and-also-short
+            \fst{at_1} \synteq \ptr{p}
+
+            \and-also-short
+
+            \tyjd{\vpmstate}{\paren{Y, \i7star}}{\tau}
+
+            \and-also-short
+
+            p \nin \dom{\memory-subset}
+
+            \and-also-short
+
+            \whjd{}{\overwrite{\memory-subset}{p}{\tau}}
+          }{
+            \tyjd{\paren{Y, \i7star} \; \ \memory-subset}{\start-dma-store{rr}}{\epsilon \to \paren{p, \tau}}
+          }
+        }
+      }
+
+      +p {
+        ${
+          \sigjd{}{\wait-dma-store}![
+            ${\type-preserving \to \epsilon};
+          ]
+        }
+      }
+
+      +p {
+        ${
+          \sigjd{}{\wait-dma-store}![
+            ${\paren{p, \tau} \to \epsilon};
+            ${\memory-subset \to \overwrite{\memory-subset}{p}{\tau} };
+          ]
+        }
+      }
+
+      +pn { conditional instructions: }
+      +p {
+        ${
+          \derivel![
+            ${
+              \sigjd{}{\iota}![
+                ${\context_1 \to \context_2};
+                ${u_1 \to u_2};
+                ${\psi_1 \to \psi_2};
+                ${\tmutypen{1}{tmu} \to \tmutypen{2}{tmu}};
+                ${C_1 \to C_2};
+                ${wr_1 \to wr_2};
+              ]
+            };
+            ${
+              \overwrite{}{rr}{at_1} \in \context_1
+            };
+            ${
+              \context_2 \synteq \overwrite{\context_{21}}{rr}{at_2}
+            };
+            ${
+              at_1 \subtype-of at_2
+            };
+          ]{
+            \sigjd{}{\paren{\iota, c}}![
+              ${\context_1 \to \context_2};
+              ${u_1 \to u_2};
+              ${\psi_1 \to \psi_2};
+              ${\tmutypen{1}{tmu} \to \tmutypen{2}{tmu}};
+              ${C_1 \to C_2};
+              ${wr_1 \to wr_2};
+            ]
+          }
+        }
+      }
+
+      %%%%%%%%% TODO: remove, or need if-else %%%%%%%%%
+      % +p {
+      %   ${
+      %     \derivel![
+      %       ${
+      %         \sigjd{}{\iota}![
+      %           ${\context_1 \to \context_2};
+      %           ${u_1 \to u_2};
+      %           ${\psi_1 \to \psi_2};
+      %           ${\tmutypen{1}{tmu} \to \tmutypen{2}{tmu}};
+      %           ${C_1 \to C_2};
+      %           ${wr_1 \to wr_2};
+      %         ]
+      %       };
+      %       ${
+      %         \context_2 \synteq \overwrite{\context_{1}}{rr}{at_2}
+      %       };
+      %     ]{
+      %       \sigjd{}{\paren{\iota, c}}![
+      %         ${\context_1 \to \context_2};
+      %         ${u_1 \to u_2};
+      %         ${\psi_1 \to \psi_2};
+      %         ${\tmutypen{1}{tmu} \to \tmutypen{2}{tmu}};
+      %         ${C_1 \to C_2};
+      %         ${wr_1 \to wr_2};
+      %       ]
+      %     }
+      %   }
+      % }
+
+      +p {
+        ${
+          \derivel![
+            ${
+              \sigjd{}{\iota}![
+                ${\state_1 \to \state_2};
+              ]
+            };
+          ]{
+            \sigjd{}{\paren{\iota, \epsilon}}![
+                ${\state_1 \to \state_2};
+            ]
+          }
+        }
+      }
+
+      +pn { signals: }
+      +p {
+        ${
+          \sigjd{}{\load{tmu}}![
+            ${\tmutype{tmu} \conj at \to \tmutype{tmu}};
+            ${\context \to \overwrite{\context}{\r{4}}{at}};
+          ]
+        }
+      }
+
+      +pn { conditional instructions with signals: }
+      +p {
+        ${
+          \derive{
+            \sigjd{}{ci}![
+              ${\state_1 \to \state_2}
+            ]
+          }{
+            \sigjd{}{\tuple![${ci}; ${\epsilon}]}![
+              ${\state_1 \to \state_2}
+            ]
+          }
+        }
+      }
+
+      +p {
+        ${
+          \derivel![
+            ${
+              \sigjd{}{ci}![
+                ${\context \to \overwrite{\context}{rr_1}{at_1}};
+                ${u_1 \to u_2};
+                ${\psi_1 \to \psi_2};
+                % ${\tmutypen{1}{tmu} \to \tmutypen{2}{tmu}};
+                ${C_1 \to C_2};
+                ${\memory-subset_1 \to \memory-subset_2};
+                ${wr_1 \to wr_2};
+              ]
+            };
+
+            ${
+              \sigjd{}{s}![
+                ${\context \to \overwrite{\context}{\mathrm{r4}}{at_2}};
+                ${\tmutypen{1}{tmu} \to \tmutypen{2}{tmu}};
+              ]
+            };
+          ]{
+            \sigjd{}{\tuple![${ci}; ${s}]}![
+              ${\context \to \overwrite{\overwrite{\context}{rr_1}{at_1}}{\mathrm{r4}}{at_2}};
+              ${u_1 \to u_2};
+              ${\psi_1 \to \psi_2};
+              ${\tmutypen{1}{tmu} \to \tmutypen{2}{tmu}};
+              ${C_1 \to C_2};
+              ${\memory-subset_1 \to \memory-subset_2};
+              ${wr_1 \to wr_2};
+            ]
+          }
+        }
+      }
+
+      +pn { labels: }
+      +p {
+        ${
+          \derive{
+            l \in \dom{\phi}
+          }{
+            \tyjd{\phi}{l}{\app{\phi}{l}}
+          }
+        }
+      }
+
+      +pn { instruction sequences: }
+      +p {
+        ${
+          \derivel![
+            ${
+              \sigjd{}{csi}![
+                ${\state_1 \to \state_2};
+              ]
+            };
+            ${
+              \sigjd{\phi}{I}![
+                ${\state_2};
+              ]
+            };
+          ]{
+            \sigjd{\phi}{csi \semi-rel I}![
+                ${\state_1};
+            ]
+          }
+        }
+      }
+      +p {
+        ${
+          \derivel![
+            ${
+              \sigjd{}{csi_1}![
+                ${\state_1 \to \state_2};
+              ]
+            };
+            ${
+              \sigjd{}{csi_2}![
+                ${\state_2 \to \state_3};
+              ]
+            };
+            ${
+              \sigjd{}{csi_3}![
+                ${\state_3 \to \state_4};
+              ]
+            };
+            ${
+              \tyjd{\phi}{l}{\code{\state_5}}
+            };
+            ${
+              \state_4 \subtype-of \state_5
+            };
+          ]{
+            \sigjd{\phi}{\jmp{l} \semi-rel csi_1 \semi-rel csi_2 \semi-rel csi_3}![
+                ${\state_1};
+            ]
+          }
+        }
+      }
+      +p {
+        ${
+          \derivel![
+            ${
+              \sigjd{}{ci}![
+                ${\state_{11} \to \state_2};
+              ]
+            };
+            ${
+              \sigjd{}{csi_1}![
+                ${\state_2 \to \state_3};
+              ]
+            };
+            ${
+              \sigjd{}{csi_2}![
+                ${\state_3 \to \state_4};
+              ]
+            };
+
+            ${
+              \regctx{\state_2}
+              \synteq
+              \overwrite{\regctx{\state_{11}}}{rwr}{at}
+            };
+
+            ${ rwr \syntneq \mathrm{ra}n };
+            ${ rwr \syntneq \mathrm{rb}n };
+
+            ${
+              \state_1
+              \synteq
+              \tuple![
+                ${\context_1};
+                ${\psi_1};
+                ${u_1};
+                ${\tmutypen{1}{tmu}};
+                ${C_1};
+                ${\memory-subset_1};
+                ${wr_1};
+              ]
+            };
+
+            ${
+              \state_{11}
+              \synteq
+              \tuple![
+                ${\context_1 \set-minus \rab14};
+                ${\psi_1};
+                ${u_1};
+                ${\tmutypen{1}{tmu}};
+                ${C_1};
+                ${\memory-subset_1};
+                ${wr_1};
+              ]
+            };
+
+            ${\rab14 \nin \regctx{\state_2}};
+            ${\rab14 \nin \regctx{\state_3}};
+            ${\rab14 \nin \regctx{\state_4}};
+
+            % Note: ra14 and rb14 are not to be restored since a program will end soon.
+          ]{
+            \sigjd{}{\paren{ci, \thread-end} \semi-rel csi_1 \semi-rel csi_2}![
+                ${\state_1};
+            ]
+          }
+        }
+      }
+
+      +p {
+        ${
+          \derivel![
+            ${
+              \sigjd{}{csi_1}![
+                ${\state_1 \to \state_2};
+              ]
+            };
+            ${
+              \sigjd{}{csi_2}![
+                ${\state_2 \to \state_3};
+              ]
+            };
+            ${
+              \sigjd{}{csi_3}![
+                ${\state_3 \to \state_4};
+              ]
+            };
+            ${\tyjd{\phi}{l}{\code{\state_4}}};
+            ${\tyjd{\phi}{I}{\state_5}};
+            ${
+              \state_4 \subtype-of \state_5
+            };
+          ]{
+            \sigjd{\phi}{\jmpif{qc}{l} \semi-rel csi_1 \semi-rel csi_2 \semi-rel csi_3 \semi-rel I}![
+                ${\state_1};
+            ]
+          }
+        }
+      }
+
+      +pn { programs: }
+      +p {
+        ${
+          \derive{
+            \forall l \in \dom{P} \dot-rel \tyjd{\phi}{\app{P}{l}}{\state_l}
+          }{
+            \whjd{\phi}{P}
+          }
+        }
+      }
+
+      +p {
+        It is defined that when the elements of ${at} all have the same basic type ${b}, it is convertible with ${\vec{b}{16}}.
+      }
+
+      +subsection {Auxiliary functions} <
+        +p {
+          Note that all free meta-variables are assumed to be fresh.
+        }
+
+        +p {
+          ${\notfull{\tmutype{tmu}} \def \paren{\tmutype{tmu} \syntneq at_1 \conj at_2 \conj at_3 \conj at_4}}
+        }
+
+        +p {
+          ${\app{\unwrap-ptr}{\ptr{p}} \def \app{\memory}{p} \if p \in \dom{\memory}}
+        }
+
+        +p {
+          ${\fst{\[b_0, b_1, ..., b_{15}\]} \def b_0}
+        }
+
+        +p {
+          ${\map{f}{\[b_0, b_1, ..., b_{15}\]} \def \[\app{f}{b_0}, \app{f}{b_1}, ..., \app{f}{b_{15}}\]}
+        }
+
+        +pn {
+          When an array type has the same 16 basic type, written ${\array{b}}:
+        }
+        +p {
+          ${\array{b} \def \[b, b, ..., b\]}
+        }
+
+        +p {
+          ${\inc{\y{63}} \def \y{0}}
+        }
+
+        +p {
+          ${\inc{\y{n}} \def \y{n + 1} \if 0 \leq n \leq 62}
+        }
+
+        +p {
+          ${
+            \regctx{
+              \tuple![
+                ${\context};
+                ${\psi};
+                ${u};
+                ${\Sigma};
+                ${C};
+                ${\memory-subset};
+                ${wr};
+              ]
+            }
+            \def
+            \context
+          }
+        }
+
+        +pn {
+          ${ \size-of{\tau} } represents the size of a value of ${\tau} in bytes.
+        }
+
+        +p {
+          ${
+            \size-of{b} \def 4
+          }
+        }
+
+        +p {
+          ${
+            \size-of{at} \def 16 \times 4
+          }
+        }
+
+        +p {
+          ${
+            \size-of{b \circ \psi} \def 4 + \size-of{\psi}
+          }
+        }
+
+        +p {
+          ${
+            \size-of{\epsilon} \def 0
+          }
+        }
+
+        +p {
+          ${
+            \size-of{\vec{b}{n}} \def \size-of{b} \times n
+          }
+        }
+
+        +p {
+          ${
+            \dma-load{Y}{1}{\tau} \def \overwrite{}{Y}{\app{truncate}{\tau}}
+          }
+        }
+
+        +p {
+          % TODO: fix?
+          ${
+            \dma-load{Y}{\i4star}{at}
+            \def
+            \overwrite{}{Y}{at}
+            \if \i4star \geq 2
+          }
+        }
+
+        +p {
+          ${
+            \app{truncate}{at} \def at
+          }
+        }
+
+        +p {
+          ${
+            \concat{\vec{b}{m}}{\vec{b}{n}} \def \vec{b}{m + n}
+          }
+        }
+
+      >
+
+    >
+  >
+
+  +section {Future} <
+    +listing {
+      * Any properties are not proved.
+      * There are many implicitness.
+      * The current definition is so conservative that it cannot serve practical use.
+      * The current definition may be incorrect or inconsistent.
+    }
+  >
+>
