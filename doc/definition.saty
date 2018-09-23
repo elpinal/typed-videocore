@@ -2,6 +2,7 @@
 @import: local-std
 @import: local-math
 @require: itemize
+@require: proof
 
 Std.document (|
   title = {\space; VideoCore IV \breakable; Typed Assembly Language};
@@ -555,9 +556,9 @@ Std.document (|
 
       +p {
         ${
-          \derive{
+          \derive{|
             \text!{${p} is in ${\prop}}
-          }{
+          |}{
             \app{\brace{\memory \vbar-rel \prop}}{p} \memsred \app{\memory}{p}
           }
         }
@@ -565,9 +566,9 @@ Std.document (|
 
       +p {
         ${
-          \derive{
+          \derive{|
             p = p_1
-          }{
+          |}{
             \app{\overwrite{\memory}{p_1}{\tau}}{p} \memred \tau
           }
         }
@@ -575,9 +576,9 @@ Std.document (|
 
       +p {
         ${
-          \derive{
+          \derive{|
             p \neq p_1
-          }{
+          |}{
             \app{\overwrite{\memory}{p_1}{\tau}}{p} \memred \app{\memory}{p}
           }
         }
@@ -609,9 +610,9 @@ Std.document (|
           \and-also
           \int{?} \subtype-of \int{?}
           \and-also
-          \derive{
+          \derive{|
             \forall i \dot-rel at_1 \brack{i} \subtype-of at_2 \brack{i}
-          }{
+          |}{
             at_1 \subtype-of at_2
           }
         }
@@ -619,9 +620,9 @@ Std.document (|
 
       +p {
         ${
-          \derive{
+          \derive{|
             m \leq n
-          }{
+          |}{
             \vec{b}{m} \subtype-of \vec{b}{n}
           }
         }
@@ -631,9 +632,9 @@ Std.document (|
         ${
           \context \subtype-of \context
           \and-also
-          \derive{
+          \derive{|
             \context_1 \subtype-of \context_2
-          }{
+          |}{
             \overwrite{\context_1}{rr}{at} \subtype-of \context_2
           }
         }
@@ -642,9 +643,9 @@ Std.document (|
       +pn { pointers: }
       +p {
         ${
-          \derive{
+          \derive{|
             p \in \dom{\memory}
-          }{
+          |}{
             \tyjd{\memory}{p}{\app{\memory}{p}}
           }
         }
@@ -653,9 +654,9 @@ Std.document (|
       +pn { well-formed memory subsets: }
       +p {
         ${
-          \derive{
+          \derive{|
             \forall p \in \dom{\memory} \dot-rel \text!{${p \range \paren{p + \size-of{\app{\memory}{p}}}} is in ${\prop}}
-          }{
+          |}{
             \whjd{}{\brace{\memory \vbar-rel \prop}}
           }
         }
@@ -664,17 +665,17 @@ Std.document (|
       +pn { registers: }
       +p {
         ${
-          \derive{
+          \derive{|
             rr \in \app{dom}{\context}
-          }{
+          |}{
             \tyjd{\context}{rr}{\app{\context}{rr}}
           }
 
           \and-also
 
-          \derive{
+          \derive{|
             \unitype{1} \synteq b \circ \unitype{2}
-          }{
+          |}{
             \tyjd{}{\uniform}{b} \| \unitype{1} \to \unitype{2}
           }
         }
@@ -688,13 +689,13 @@ Std.document (|
 
       +p {
         ${
-          \derive{
+          \derive{|
             vpmq_1 \synteq \paren{vpmq_2 \conj \paren{Y, i}}
-            \and-also
+          |
             i \geq 2
-            \and-also
+          |
             \tyjd{\vpmstate}{Y}{at}
-          }{
+          |}{
             \sigjd{\vpmstate}{\vpmr}![
               ${at};
               ${vpmq_1 \to vpmq_2 \conj \paren{\inc{Y}, i - 1}};
@@ -705,11 +706,11 @@ Std.document (|
 
       +p {
         ${
-          \derive{
+          \derive{|
             vpmq_1 \synteq \paren{vpmq_2 \conj \paren{Y, 1}}
-            \and-also
+          |
             \tyjd{\vpmstate}{Y}{at}
-          }{
+          |}{
             \sigjd{\vpmstate}{\vpmr}![
               ${at};
               ${vpmq_1 \to vpmq_2};
@@ -721,9 +722,9 @@ Std.document (|
       +pn { VPM: }
       +p {
         ${
-            \derive{
+            \derive{|
               Y \in \dom{\vpmstate}
-            }{
+            |}{
               \tyjd{\vpmstate}{Y}{\app{\vpmstate}{Y}}
             }
         }
@@ -731,11 +732,11 @@ Std.document (|
 
       +p {
         ${
-          \derive{
+          \derive{|
             \tyjd{\vpmstate}{Y}{at}
-            \and-also
+          |
             at \subtype-of vt
-          }{
+          |}{
             \tyjd{\vpmstate}{\paren{Y, 1}}{vt}
           }
         }
@@ -743,17 +744,17 @@ Std.document (|
 
       +p {
         ${
-          \derive{
+          \derive{|
             \tyjd{\vpmstate}{Y}{at}
-            \and-also
+          |
             at \subtype-of vt_1
-            \and-also
+          |
             n \leq 62
-            \and-also
+          |
             \i7star \geq 2
-            \and-also
+          |
             \tyjd{\vpmstate}{\paren{\y{n + 1}, \i7star - 1}}{vt_2}
-          }{
+          |}{
             \tyjd{\vpmstate}{\paren{\y{n}, \i7star}}{\concat{vt_1}{vt_2}}
           }
         }
@@ -762,24 +763,24 @@ Std.document (|
       +pn { instructions: }
       +p {
         ${
-          \derive{
+          \derive{|
             rr \syntneq wr_{before}
-            \and-also
+          |
             rr \in \app{dom}{\context}
-            \and-also
+          |
             at \synteq \app{rotate}{\app{\context}{rr}, i4}
-          }{
+          |}{
             \tyjd{wr_{before}}{\app{\mathrm{rotate}}{rwr, rr, i4}}{\context \to \overwrite{\context}{rwr}{at}} \semi-rel rwr
           }
         }
       }
       +p {
         ${
-          \derive{
+          \derive{|
             \tyjd{}{\uniform}{b}\ \| \ \unitype{1} \to \unitype{2}
-            \and-also
+          |
             at \synteq \app{array}{b}
-          }{
+          |}{
             \ppjd![${\u{0}}]{\app{\mathrm{rotate}}{rwr, \uniform, i4}}![
               ${\context \to \overwrite{\context}{rwr}{at}};
               ${\unitype{1} \to \unitype{2}};
@@ -789,21 +790,21 @@ Std.document (|
       }
       +p {
         ${
-          \derive{
+          \derive{|
             \tyjd{}{\elenum}{at}
-          }{
+          |}{
             \tyjd{}{\app{\mathrm{rotate}}{rwr, \elenum, i4}}{\context \to \overwrite{\context}{rwr}{\rotate{at}{i4}}} \semi-rel rwr
           }
         }
       }
       +p {
         ${
-          \derive{
+          \derive{|
             \sigjd{\vpmstate}{\vpmr}![
               ${at};
               ${vpmq_1 \to vpmq_2};
             ]
-          }{
+          |}{
             \sigjd{\vpmstate}{\app{\mathrm{rotate}}{rwr, \vpmr, i4}}![
               ${vpmq_1 \to vpmq_2};
               ${\context \to \overwrite{\context}{rwr}{\rotate{at}{i4}}};
@@ -814,47 +815,47 @@ Std.document (|
 
       +p {
         ${
-          \derive{
+          \derive{|
             rr \syntneq wr_{before}
-            \and-also
+          |
             \tyjd{\context}{rr}{at}
-            \and-also
+          |
             \fst{\rotate{at}{i4}} \synteq b
-          }{
+          |}{
             \tyjd{\context\; \ wr_{before}}{\app{\mathrm{rotate}}{\broadcast, rr, i4}}{\context \to \overwrite{\context}{\r{5}}{\array{b}}}
           }
         }
       }
       +p {
         ${
-          \derive{
+          \derive{|
             \tyjd{}{\uniform}{b} \vbar-rel \unitype{1} \to \unitype{2}
-          }{
+          |}{
             \tyjd{}{\app{\mathrm{rotate}}{\broadcast, \uniform, i4}}{\context \to \overwrite{\context}{\r{5}}{\array{b}}} \vbar-rel \unitype{1} \to \unitype{2}
           }
         }
       }
       +p {
         ${
-          \derive{
+          \derive{|
             \tyjd{}{\elenum}{at}
-            \and-also
+          |
             b \synteq \fst{\rotate{at}{i4}}
-          }{
+          |}{
             \tyjd{}{\app{\mathrm{rotate}}{\broadcast, \elenum, i4}}{\context \to \overwrite{\context}{\r{5}}{\array{b}}}
           }
         }
       }
       +p {
         ${
-          \derive{
+          \derive{|
             \sigjd{\vpmstate}{\vpmr}![
               ${at};
               ${vpmq_1 \to vpmq_2};
             ]
-            \and-also
+          |
             \fst{\rotate{at}{i4}} \synteq b
-          }{
+          |}{
             \sigjd{\vpmstate}{\app{\mathrm{rotate}}{\broadcast, \vpmr, i4}}![
               ${\context \to \overwrite{\context}{\r{5}}{\array{b}}};
               ${vpmq_1 \to vpmq_2};
@@ -865,42 +866,42 @@ Std.document (|
 
       +p {
         ${
-          \derive{
+          \derive{|
             rr \syntneq wr_{before}
-            \and-also
+          |
             \tyjd{\context}{rr}{at}
-            \and-also
+          |
             \fst{\rotate{at}{i4}} \synteq \ptr{p}
-            \and-also
+          |
             \tyjd{\memory}{p}{\unitype{2}}
-          }{
+          |}{
             \tyjd{\context\; \memory \; \ wr_{before}}{\app{\mathrm{rotate}}{\uniadd, rr, i4}}{\unitype{1} \to \unitype{2}}\ \| u \to \u{2}
           }
         }
       }
       +p {
         ${
-          \derive{
+          \derive{|
             \tyjd{}{\uniform}{\ptr{p}} \vbar-rel \unitype{1} \to \unitype{2}
-            \and-also
+          |
             \tyjd{\memory}{p}{\unitype{3}}
-          }{
+          |}{
             \tyjd{\memory}{\app{\mathrm{rotate}}{\uniadd, \uniform, i4}}{\unitype{1} \to \unitype{3}}\ \| \u{0} \to \u{2}
           }
         }
       }
       +p {
         ${
-          \derive{
+          \derive{|
             \sigjd{\vpmstate}{\vpmr}![
               ${at};
               ${vpmq_1 \to vpmq_2};
             ]
-            \and-also
+          |
             \fst{\rotate{at}{i4}} \synteq \ptr{p}
-            \and-also
+          |
             \tyjd{\memory}{p}{\unitype{2}}
-          }{
+          |}{
             \sigjd{\vpmstate \; \ \memory}{\app{\mathrm{rotate}}{\uniadd, \vpmr, i4}}![
               ${\unitype{1} \to \unitype{2}};
               ${vpmq_1 \to vpmq_2};
@@ -912,26 +913,26 @@ Std.document (|
 
       +p {
         ${
-          \derive{
+          \derive{|
             rr \syntneq wr_{before}
-            \and-also
+          |
             \tyjd{\context}{rr}{at}
-            \and-also
+          |
             \notfull{\tmutype{tmu}}
-          }{
+          |}{
             \tyjd{\context\; \ \memory \; \ wr_{before}}{\app{\mathrm{rotate}}{tmu, rr, i4}}{\tmutype{tmu} \to \rotate{\map{unwrap_{\memory}}{at}}{i4} \conj \tmutype{tmu}}
           }
         }
       }
       +p {
         ${
-          \derive{
+          \derive{|
             \tyjd{}{\uniform}{\ptr{p}}\ \| \unitype{1} \to \unitype{2}
-            \and-also
+          |
             \tyjd{\memory}{p}{b}
-            \and-also
+          |
             \notfull{\tmutype{tmu}}
-          }{
+          |}{
             \sigjd{\u{0} \; \ \memory}{\app{\mathrm{rotate}}{tmu, \uniform, i4}}![
               ${\tmutype{tmu} \to \array{b} \conj \tmutype{tmu}};
               ${\unitype{1} \to \unitype{2}};
@@ -941,14 +942,14 @@ Std.document (|
       }
       +p {
         ${
-          \derive{
+          \derive{|
             \sigjd{\vpmstate}{\vpmr}![
               ${at};
               ${vpmq_1 \to vpmq_2};
             ]
-            \and-also
+          |
             \notfull{\tmutype{tmu}}
-          }{
+          |}{
             \tyjd{\vpmstate \; \ \memory}{\app{\mathrm{rotate}}{tmu, \vpmr, i4}}{\tmutype{tmu} \to \rotate{\map{\unwrap-ptr}{at}}{i4} \conj \tmutype{tmu}}
           }
         }
@@ -956,13 +957,13 @@ Std.document (|
 
       +p {
         ${
-          \derive{
+          \derive{|
             rr \syntneq wr_{before}
-            \and-also
+          |
             rr \in \app{dom}{\context}
-            \and-also
+          |
             at \synteq \app{rotate}{\app{\context}{rr}, i4}
-          }{
+          |}{
             \sigjd{wr_{before}}{\app{\mathrm{rotate}}{\vpmw, rr, i4}}![
               ${\vpmstate \to \overwrite{\vpmstate}{Y}{at}};
               ${Y \to \inc{Y}};
@@ -972,11 +973,11 @@ Std.document (|
       }
       +p {
         ${
-          \derive{
+          \derive{|
             \tyjd{}{\uniform}{b}\ \| \ \unitype{1} \to \unitype{2}
-            \and-also
+          |
             at \synteq \app{array}{b}
-          }{
+          |}{
             \sigjd{\u{0}}{\app{\mathrm{rotate}}{\vpmw, \uniform, i4}}![
               ${\vpmstate \to \overwrite{\vpmstate}{Y}{at}};
               ${\unitype{1} \to \unitype{2}};
@@ -987,9 +988,9 @@ Std.document (|
       }
       +p {
         ${
-          \derive{
+          \derive{|
             \tyjd{}{\elenum}{at}
-          }{
+          |}{
             \sigjd{}{\app{\mathrm{rotate}}{\vpmw, \elenum, i4}}![
               ${\vpmstate \to \overwrite{\vpmstate}{Y}{\rotate{at}{i4}}};
               ${Y \to \inc{Y}};
@@ -1000,50 +1001,50 @@ Std.document (|
 
       +p {
         ${
-          \derive{
+          \derive{|
             \tyjd{}{n}{b}
-          }{
+          |}{
             \tyjd{}{\app{\mathrm{mov}}{rwr, n}}{\context \to \overwrite{\context}{rwr}{\app{array}{b}}}\ \; \  rwr
           }
         }
       }
       +p {
         ${
-          \derive{
+          \derive{|
             \tyjd{\context}{urr}{at}
-          }{
+          |}{
             \tyjd{}{\app{\mathrm{mov}}{rwr, urr}}{\context \to \overwrite{\context}{rwr}{at}}\ \; \  rwr
           }
         }
       }
       +p {
         ${
-          \derive{
+          \derive{|
             \tyjd{\context}{rf}{at}
-            \and-also
+          |
             rf \syntneq wr_{before}
-          }{
+          |}{
             \tyjd{wr_{before}}{\app{\mathrm{mov}}{rwr, rf}}{\context \to \overwrite{\context}{rwr}{at}}\ \; \  rwr
           }
         }
       }
       +p {
         ${
-          \derive{
+          \derive{|
             \tyjd{}{\uniform}{b}\ \| \ \unitype{1} \to \unitype{2}
-          }{
+          |}{
             \tyjd{\u{0}}{\app{\mathrm{mov}}{rwr, \uniform}}{\context \to \overwrite{\context}{rwr}{\app{array}{b}}}\ \| \unitype{1} \to \unitype{2} \; \  rwr
           }
         }
       }
       +p {
         ${
-          \derive{
+          \derive{|
             \sigjd{\vpmstate}{\vpmr}![
               ${at};
               ${vpmq_1 \to vpmq_2};
             ]
-          }{
+          |}{
             \sigjd{\vpmstate}{\app{\mathrm{mov}}{rwr, \vpmr}}![
               ${\context \to \overwrite{\context}{rwr}{at}};
               ${vpmq_1 \to vpmq_2};
@@ -1054,54 +1055,54 @@ Std.document (|
 
       +p {
         ${
-          \derive{
+          \derive{|
             \tyjd{}{n}{b}
-          }{
+          |}{
             \tyjd{}{\app{\mathrm{mov}}{\broadcast, n}}{\context \to \overwrite{\context}{\r{5}}{\array{b}}}
           }
         }
       }
       +p {
         ${
-          \derive{
+          \derive{|
             \tyjd{\context}{urr}{at}
-            \and-also
+          |
             \fst{at} \synteq b
-          }{
+          |}{
             \tyjd{\context}{\app{\mathrm{mov}}{\broadcast, urr}}{\context \to \overwrite{\context}{\r{5}}{\array{b}}}
           }
         }
       }
       +p {
         ${
-          \derive{
+          \derive{|
             \tyjd{\context}{rf}{at}
-            \and-also
+          |
             \fst{at} \synteq b
-            \and-also
+          |
             rf \syntneq \wrbefore
-          }{
+          |}{
             \tyjd{\context \; \ \wrbefore}{\app{\mathrm{mov}}{\broadcast, rf}}{\context \to \overwrite{\context}{\r{5}}{\array{b}}}
           }
         }
       }
       +p {
         ${
-          \derive{
+          \derive{|
             \tyjd{}{\uniform}{b} \vbar-rel \unitype{1} \to \unitype{2}
-          }{
+          |}{
             \tyjd{\u{0}}{\app{\mathrm{mov}}{\broadcast, \uniform}}{\context \to \overwrite{\context}{\r{5}}{\array{b}}} \vbar-rel \unitype{1} \to \unitype{2}
           }
         }
       }
       +p {
         ${
-          \derive{
+          \derive{|
             \sigjd{\vpmstate}{\vpmr}![
               ${at};
               ${vpmq_1 \to vpmq_2};
             ]
-          }{
+          |}{
             \sigjd{\vpmstate}{\app{\mathrm{mov}}{\broadcast, \vpmr}}![
               ${\context \to \overwrite{\context}{\r{5}}{at}};
               ${vpmq_1 \to vpmq_2};
@@ -1112,13 +1113,13 @@ Std.document (|
 
       +p {
         ${
-          \derive{
+          \derive{|
             \tyjd{\context}{a}{at}
-            \and-also
+          |
             \fst{at} \synteq \ptr{p}
-            \and-also
+          |
             \tyjd{\memory}{p}{\unitype{2}}
-          }{
+          |}{
             \sigjd{\context \; \ \memory}{\app{\mathrm{mov}}{\uniadd, a}}![
               ${\unitype{1} \to \unitype{2}};
               ${u \to \u{2}};
@@ -1129,15 +1130,15 @@ Std.document (|
 
       +p {
         ${
-          \derive{
+          \derive{|
             \tyjd{\context}{rf}{at}
-            \and-also
+          |
             \fst{at} \synteq \ptr{p}
-            \and-also
+          |
             \tyjd{\memory}{p}{\unitype{2}}
-            \and-also
+          |
             rf \syntneq \wrbefore
-          }{
+          |}{
             \sigjd{\context \; \ \memory \; \ \wrbefore}{\app{\mathrm{mov}}{\uniadd, rf}}![
               ${\unitype{1} \to \unitype{2}};
               ${u \to \u{2}};
@@ -1148,14 +1149,14 @@ Std.document (|
 
       +p {
         ${
-          \derive{
+          \derive{|
             \sigjd{}{\uniform}![
               ${\ptr{p}};
               ${\unitype{1} \to \unitype{2}};
             ]
-            \and-also
+          |
             \tyjd{\memory}{p}{\unitype{3}}
-          }{
+          |}{
             \sigjd{\memory}{\app{\mathrm{mov}}{\uniadd, \uniform}}![
               ${\unitype{1} \to \unitype{3}};
               ${\u{0} \to \u{2}};
@@ -1166,16 +1167,16 @@ Std.document (|
 
       +p {
         ${
-          \derive{
+          \derive{|
             \sigjd{\vpmstate}{\vpmr}![
               ${at};
               ${vpmq_1 \to vpmq_2};
             ]
-            \and-also
+          |
             \fst{at} \synteq \ptr{p}
-            \and-also
+          |
             \tyjd{\memory}{p}{\unitype{2}}
-          }{
+          |}{
             \sigjd{\vpmstate \; \ \memory}{\app{\mathrm{mov}}{\uniadd, \vpmr}}![
               ${vpmq_1 \to vpmq_2};
               ${\unitype{1} \to \unitype{2}};
@@ -1187,11 +1188,11 @@ Std.document (|
 
       +p {
         ${
-          \derive{
+          \derive{|
             \tyjd{\context}{a}{at}
-            \and-also
+          |
             \notfull{\tmutype{tmu}}
-          }{
+          |}{
             \tyjd{\context \; \ \memory}{\app{\mathrm{mov}}{tmu, a}}{\tmutype{tmu} \to \map{\unwrap-ptr}{at} \conj \tmutype{tmu}}
           }
         }
@@ -1199,13 +1200,13 @@ Std.document (|
 
       +p {
         ${
-          \derive{
+          \derive{|
             \tyjd{\context}{rf}{at}
-            \and-also
+          |
             \notfull{\tmutype{tmu}}
-            \and-also
+          |
             rf \syntneq \wrbefore
-          }{
+          |}{
             \tyjd{\context \; \ \memory \; \ \wrbefore}{\app{\mathrm{mov}}{tmu, rf}}{\tmutype{tmu} \to \map{\unwrap-ptr}{at} \conj \tmutype{tmu}}
           }
         }
@@ -1213,13 +1214,13 @@ Std.document (|
 
       +p {
         ${
-          \derive{
+          \derive{|
             \tyjd{}{\uniform}{\ptr{p}}\ \| \ \unitype{1} \to \unitype{2}
-            \and-also
+          |
             \tyjd{\memory}{p}{b}
-            \and-also
+          |
             \notfull{\tmutype{tmu}}
-          }{
+          |}{
             \tyjd{\u{0} \; \ \memory}{\app{\mathrm{mov}}{tmu, \uniform}}{\tmutype{tmu} \to \array{b} \conj \tmutype{tmu}}\ \| \unitype{1} \to \unitype{2}
           }
         }
@@ -1227,14 +1228,14 @@ Std.document (|
 
       +p {
         ${
-          \derive{
+          \derive{|
             \sigjd{\vpmstate}{\vpmr}![
               ${at};
               ${vpmq_1 \to vpmq_2};
             ]
-            \and-also
+          |
             \notfull{\tmutype{tmu}}
-          }{
+          |}{
             \sigjd{\vpmstate \; \ \memory}{\app{\mathrm{mov}}{tmu, \vpmr}}![
               ${vpmq_1 \to vpmq_2};
               ${\tmutype{tmu} \to \map{\unwrap-ptr}{at} \conj \tmutype{tmu}};
@@ -1245,9 +1246,9 @@ Std.document (|
 
       +p {
         ${
-          \derive{
+          \derive{|
             \tyjd{}{n}{b}
-          }{
+          |}{
             \sigjd{}{\app{\mathrm{mov}}{\vpmw, n}}![
               ${\vpmstate \to \overwrite{\vpmstate}{Y}{\array{b}}};
               ${Y \to \inc{Y}};
@@ -1257,9 +1258,9 @@ Std.document (|
       }
       +p {
         ${
-          \derive{
+          \derive{|
             \tyjd{\context}{urr}{at}
-          }{
+          |}{
             \sigjd{}{\app{\mathrm{mov}}{\vpmw, urr}}![
               ${\vpmstate \to \overwrite{\vpmstate}{Y}{at}};
               ${Y \to \inc{Y}};
@@ -1269,11 +1270,11 @@ Std.document (|
       }
       +p {
         ${
-          \derive{
+          \derive{|
             \tyjd{\context}{rf}{at}
-            \and-also
+          |
             rf \syntneq wr_{before}
-          }{
+          |}{
             \sigjd{wr_{before}}{\app{\mathrm{mov}}{\vpmw, rf}}![
               ${\vpmstate \to \overwrite{\vpmstate}{Y}{at}};
               ${Y \to \inc{Y}};
@@ -1283,9 +1284,9 @@ Std.document (|
       }
       +p {
         ${
-          \derive{
+          \derive{|
             \tyjd{}{\uniform}{b}\ \| \ \unitype{1} \to \unitype{2}
-          }{
+          |}{
             \sigjd{\u{0}}{\app{\mathrm{mov}}{\vpmw, \uniform}}![
               ${\vpmstate \to \overwrite{\vpmstate}{Y}{\array{b}}};
               ${\unitype{1} \to \unitype{2}};
@@ -1297,9 +1298,9 @@ Std.document (|
 
       +p {
         ${
-          \derive{
+          \derive{|
             \tyjd{\vpmstate}{Y}{at}
-          }{
+          |}{
             \sigjd{\vpmstate}{\setupvpmread{Y}{\i4star}}![
               ${vpmq \to \paren{Y, \i4star} \conj vpmq};
             ]
@@ -1315,9 +1316,9 @@ Std.document (|
 
       +p {
         ${
-          \derive{
+          \derive{|
             i + \i4star \leq 64
-          }{
+          |}{
             \tyjd{}{\setup-dma-load{\y{i}}{\i4star}}{DLS \to \paren{\y{i}, \i4star}}
           }
         }
@@ -1325,16 +1326,16 @@ Std.document (|
 
       +p {
         ${
-          \derive{
+          \derive{|
             % FIXME: missing many pre/post conditions.
             \tyjd{\context}{rr}{at}
-            \and-also
+          |
             \fst{at} \synteq \ptr{p}
-            \and-also
+          |
             \tyjd{\memory}{p}{\tau}
-            \and-also
+          |
             \i4star \times 16 \times 4 \leq \size-of{\tau}
-          }{
+          |}{
             \tyjd{\paren{Y, \i4star} \; \ \memory}{\start-dma-load{rr}}{\epsilon \to \paren{Y, \i4star, \tau}}
           }
         }
@@ -1352,9 +1353,9 @@ Std.document (|
 
       +p {
         ${
-          \derive{
+          \derive{|
             i + \i7star \leq 64
-          }{
+          |}{
             \tyjd{}{\setup-dma-store{\y{i}}{\i7star}}{DSS \to \paren{\y{i}, \i7star}}
           }
         }
@@ -1363,20 +1364,20 @@ Std.document (|
       +p {
         ${
           % TODO: consider `i`.
-          \derive{
+          \derive{|
             % FIXME: missing many pre/post conditions.
             \tyjd{\context}{rr}{at_1}
-            \and-also-short
+          |
             \fst{at_1} \synteq \ptr{p}
-            \and-also-short
+          |
             \tyjd{\memory-subset}{p}{\tau}
 
-            \and-also-short
+          |
 
             \tyjd{\vpmstate}{\paren{Y, \i7star}}{\tau_1}
-            \and-also-short
+          |
             \tau_1 \subtype-of \tau
-          }{
+          |}{
             \tyjd{\paren{Y, \i7star} \; \ \memory-subset}{\start-dma-store{rr}}{\epsilon \to \type-preserving}
           }
         }
@@ -1386,24 +1387,24 @@ Std.document (|
         ${
           % TODO: consider `i`.
           % FIXME: must check the end of address is in a valid region.
-          \derive{
+          \derive{|
             % FIXME: missing many pre/post conditions.
             \tyjd{\context}{rr}{at_1}
-            \and-also-short
+          |
             \fst{at_1} \synteq \ptr{p}
 
-            \and-also-short
+          |
 
             \tyjd{\vpmstate}{\paren{Y, \i7star}}{\tau}
 
-            \and-also-short
+          |
 
             p \nin \dom{\memory-subset}
 
-            \and-also-short
+          |
 
             \whjd{}{\overwrite{\memory-subset}{p}{\tau}}
-          }{
+          |}{
             \tyjd{\paren{Y, \i7star} \; \ \memory-subset}{\start-dma-store{rr}}{\epsilon \to \paren{p, \tau}}
           }
         }
@@ -1521,11 +1522,11 @@ Std.document (|
       +pn { conditional instructions with signals: }
       +p {
         ${
-          \derive{
+          \derive{|
             \sigjd{}{ci}![
               ${\state_1 \to \state_2}
             ]
-          }{
+          |}{
             \sigjd{}{\tuple![${ci}; ${\epsilon}]}![
               ${\state_1 \to \state_2}
             ]
@@ -1571,9 +1572,9 @@ Std.document (|
       +pn { labels: }
       +p {
         ${
-          \derive{
+          \derive{|
             l \in \dom{\phi}
-          }{
+          |}{
             \tyjd{\phi}{l}{\app{\phi}{l}}
           }
         }
@@ -1734,9 +1735,9 @@ Std.document (|
       +pn { programs: }
       +p {
         ${
-          \derive{
+          \derive{|
             \forall l \in \dom{P} \dot-rel \tyjd{\phi}{\app{P}{l}}{\state_l}
-          }{
+          |}{
             \whjd{\phi}{P}
           }
         }

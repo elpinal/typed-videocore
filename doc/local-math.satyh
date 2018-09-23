@@ -17,11 +17,15 @@ let greek-lowercase cp cpb =
       double-struck = s;
     |)
 
+
+let-math \overwrite mf ma mb =
+  ${#mf\sqbracket{#ma \mapsto #mb}}
+
 let-math \uniform = ${\mathrm{uniform}}
 let-math \uniadd = ${\mathrm{uniforms\_address}}
 let-math \elenum = ${\mathrm{element\_number}}
 let-math \tmu n = ${\mathrm{tmu #n}}
-let-math \load tmu = ${\mathrm{load} \angle{#tmu}}
+let-math \load tmu = ${\mathrm{load} \angle-bracket{#tmu}}
 let-math \broadcast = ${\mathrm{broadcast}}
 let-math \ptr t = ${\app{\mathrm{ptr}}{#t}}
 let-math \u n = ${\mathrm{u #n}}
@@ -125,25 +129,25 @@ let-math \models = math-char MathRel `⊨`
 let-math \vdash = math-char MathRel `⊢`
 let-math \sigjd env s trans =
   let b = text-in-math MathOrd (fun ctx -> discretionary 10 inline-nil inline-fil inline-fil) in
-  let ts = Math.concat ${#b \vbar-rel} trans in
+  let ts = Math.join ${#b \vbar-rel} trans in
   ${#env \vdash #s \colon-rel #ts}
 let-math \instjd envs s trans =
-  let ts = Math.concat ${\vbar-rel} trans in
-  let es = Math.concat ${\semi-rel} envs in
+  let ts = Math.join ${\vbar-rel} trans in
+  let es = Math.join ${\semi-rel} envs in
   ${#es \vdash #s \colon-rel #ts}
 let-math \flagjd env s trans =
   let b = text-in-math MathOrd (fun ctx -> discretionary 10 inline-nil inline-fil inline-fil) in
-  let ts = Math.concat ${#b \vbar-rel} trans in
+  let ts = Math.join ${#b \vbar-rel} trans in
   ${#env \vdash_{flags} #s \colon-rel #ts}
 let-math \tyflagjd env s trans =
   let b = text-in-math MathOrd (fun ctx -> discretionary 10 inline-nil inline-fil inline-fil) in
-  let ts = Math.concat ${#b \vbar-rel} trans in
+  let ts = Math.join ${#b \vbar-rel} trans in
   ${#env \models #s \colon-rel #ts}
 
 let-math \ppjd envs s trans posts =
-  let ts = Math.concat ${\vbar-rel} trans in
-  let es = Math.concat ${\semi-rel} envs in
-  let ps = Math.concat ${\semi-rel} posts in
+  let ts = Math.join ${\vbar-rel} trans in
+  let es = Math.join ${\semi-rel} envs in
+  let ps = Math.join ${\semi-rel} posts in
   ${#es \vdash #s \colon-rel #ts \semi-rel #ps}
 
 let-math \whjd env s = ${#env \vdash #s}
@@ -260,7 +264,7 @@ let-math \start-dma-store x = ${\apprm{start\_dma\_store}{#x}}
 let-math \wait-dma-store = ${\mathrm{wait\_dma\_store}}
 
 let-math \join ms =
-  let m = Math.concat ${\semi-rel} ms in m
+  let m = Math.join ${\semi-rel} ms in m
 
 let-math \and-also-short = text-in-math MathOrd (fun ctx -> inline-glue 14pt 2pt 0pt)
 let-math \set-minus = text-in-math MathBin (fun ctx -> read-inline ctx {\\})
@@ -272,7 +276,7 @@ let-inline ctx \right x =
   inline-fil ++ ib
 
 let-math \tuple mlst =
-  let inner = Math.concat ${,} mlst in
+  let inner = Math.join ${,} mlst in
     ${\paren{\math-skip!(2pt)#inner\math-skip!(1pt)}}
 
 let-math \pair m1 m2 =
@@ -295,7 +299,7 @@ let-math \BNFi desc nontm mlst =
         let x = text-in-math MathOrd (fun ctx ->
           discretionary 0 inline-nil inline-fil (inline-skip 5pt)
         ) in
-        let defs = Math.concat ${#x \|} mlst in
+        let defs = Math.join ${#x \|} mlst in
         let ib = embed-math ctx nontm ++ surround 3pt (embed-math ctx defc)
               ++ embed-math ctx defs ++ b ++ read-inline ctx desc in
           line-break true true ctx ib
@@ -306,7 +310,7 @@ let-math \BNFi desc nontm mlst =
 
 let-math \BNF nontm mlst =
   let sp = text-in-math MathOrd (fun ctx -> discretionary 0 inline-nil inline-nil inline-nil) in
-  let defs = Math.concat ${#sp \|} mlst in
+  let defs = Math.join ${#sp \|} mlst in
     ${#nontm \mathrel{: : =} #defs}
 
 let-block ctx +BNF desc rule =
