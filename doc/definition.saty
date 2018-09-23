@@ -610,7 +610,7 @@ Std.document (|
           \and-also
           \int{?} \subtype-of \int{?}
           \and-also
-          \derive{|
+          \derive?:{\text!{(S-Array)}}{|
             \forall i \dot-rel at_1 \brack{i} \subtype-of at_2 \brack{i}
           |}{
             at_1 \subtype-of at_2
@@ -620,7 +620,7 @@ Std.document (|
 
       +p {
         ${
-          \derive{|
+          \derive?:{\text!{(S-Vector)}}{|
             m \leq n
           |}{
             \vec{b}{m} \subtype-of \vec{b}{n}
