@@ -631,11 +631,28 @@ Std.document (|
       +p {
         ${
           \context \subtype-of \context
-          \and-also
-          \derive{|
+
+        }
+      }
+
+      +p {
+        ${
+          \derive?:{\text!{(S-Ctx-Width)}}{|
             \context_1 \subtype-of \context_2
+          |
+            rr \nin \dom{\context_1}
           |}{
             \overwrite{\context_1}{rr}{at} \subtype-of \context_2
+          }
+
+          \and-also
+
+          \derive?:{\text!{(S-Ctx-Depth)}}{|
+            \context_1 \subtype-of \context_2
+          |
+            at_1 \subtype-of at_2
+          |}{
+            \overwrite{\context_1}{rr}{at_1} \subtype-of \overwrite{\context_2}{rr}{at_2}
           }
         }
       }
