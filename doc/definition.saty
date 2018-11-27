@@ -1,4 +1,5 @@
 % -*- coding: utf-8 -*-
+@import: bnf
 @import: local-std
 @import: local-math
 @require: itemize
@@ -29,302 +30,204 @@ Std.document (|
     +pn {
       The syntax is given below.
     }
-    +BNF {operands} {
-      ${
-        \BNF{\nu}![
-          ${n};
-          ${rr};
-        ]
-      }
-    }
-    +BNF {numbers} {
-      ${
-        \BNF{n}![
-          ${i};
-          ${f};
-        ]
-      }
-    }
-    +BNF {registers} {
-      ${
-        \BNF{r}![
-          ${rr};
-          ${wr};
-        ]
-      }
-    }
-    +BNF {readable registers} {
-      ${
-        \BNF{rr}![
-          ${rwr};
-          ${\uniform};
-          ${\elenum};
-          ${\vpmr};
-        ]
-      }
-    }
-    +BNF {unconstrained readable registers} {
-      ${
-        \BNF{urr}![
-          ${a};
-          ${\elenum};
-        ]
-      }
-    }
-    +BNF {writable registers} {
-      ${
-        \BNF{wr}![
-          ${rwr};
-          ${\uniadd};
-          ${tmu};
-          ${\broadcast};
-          ${\vpmw};
-        ]
-      }
-    }
-    +BNF {both readable and writable registers} {
-      ${
-        \BNF{rwr}![
-          ${ga};
-          ${rf};
-        ]
-      }
-    }
-    +BNF {accumulators} {
-      ${
-        \BNF{a}![
-          ${ga};
-          ${sa};
-        ]
-      }
-    }
-    +BNF {general-purpose accumulators} {
-      ${
-        \BNF{ga}![
-          ${\mathrm{r0}};
-          ${\mathrm{r1}};
-          ${\mathrm{r2}};
-          ${\mathrm{r3}};
-        ]
-      }
-    }
-    +BNF {special-purpose accumulators} {
-      ${
-        \BNF{sa}![
-          ${\mathrm{r4}};
-          ${\mathrm{r5}};
-        ]
-      }
-    }
-    +BNF {register files} {
-      ${
-        \BNF{rf}![
-          ${A};
-          ${B};
-        ]
-      }
-    }
-    +BNF {locations in register file A} {
-      ${
-        \BNF{A}![
-          ${\mathrm{ra0}};
-          ${...};
-          ${\mathrm{ra31}};
-        ]
-      }
-    }
-    +BNF {locations in register file B} {
-      ${
-        \BNF{B}![
-          ${\mathrm{rb0}};
-          ${...};
-          ${\mathrm{rb31}};
-        ]
-      }
-    }
-
-    +BNF {TMU} {
-      ${
-        \BNF{tmu}![
-          ${\tmu{0}};
-          ${\tmu{1}};
-        ]
-      }
-    }
-    +BNF {VPM read queues} {
-      ${
-        \BNF{vpmq}![
-          ${\epsilon};
-          ${\paren{Y, i} \conj vpmq};
-        ]
-      }
-    }
-    +BNF {VPM Y} {
-      ${
-        \BNF{Y}![
-          ${\y{0}};
-          ${...};
-          ${\y{63}};
-        ]
-      }
-    }
-
     +p {
-      ${
-        \BNFi!{instructions}{\iota}![
-          ${\app{\mathrm{rotate}}{wr, rr, i4}};
-          ${\app{\mathrm{mov}}{wr, \nu}};
-          ${\setupvpmread{Y}{\i4star}};
-          ${\setupvpmwrite{Y}};
-          % ${\jmp{l}};
+            \BNF.BNFs [
+                    (`operands`, ${\nu}, [${|
+                          n
+                          | r
+                    |}]);
+                    (`numbers`, ${n}, [${|
+                          i
+                          | f
+                    |}]);
+                    (`registers`, ${r}, [${|
+                          rr
+                          | wr
+                    |}]);
+                    (`readable registers`, ${rr}, [${|
+                          rwr
+                          | \uniform
+                          | \elenum
+                          | \vpmr
+                        |}]);
+                    (`unconstrained readable registers`, ${urr}, [${|
+                          a
+                          | \elenum
+                        |}]);
+                    (`writable registers`, ${wr}, [${|
+                          rwr
+                          | \uniadd
+                        |};
+                        ${|
+                          tmu
+                          | \broadcast
+                          | \vpmw
+                        |}]);
+                    (`both readable and writable registers`, ${rwr}, [${|
+                          ga
+                          | rf
+                        |}]);
+                    (`accumulators`, ${a}, [${|
+                          ga
+                          | sa
+                        |}]);
+                    (`general-purpose accumulators`, ${ga}, [${|
+                          \mathrm{r0}
+                          | \mathrm{r1}
+                          | \mathrm{r2}
+                          | \mathrm{r3}
+                        |}]);
+                    (`special-purpose accumulators`, ${sa}, [${|
+                          \mathrm{r4}
+                          | \mathrm{r5}
+                        |}]);
+                    (`register files`, ${rf}, [${|
+                          A
+                          | B
+                        |}]);
+                    (`locations in register file A`, ${A}, [${|
+                          \mathrm{ra0}
+                          | ...
+                          | \mathrm{ra31}
+                        |}]);
+                    (`locations in register file B`, ${B}, [${|
+                          \mathrm{rb0}
+                          | ...
+                          | \mathrm{rb31}
+                        |}]);
+                    (`TMU`, ${tmu}, [${|
+                          \tmu{0}
+                          | \tmu{1}
+                    |}]);
+                    (`VPM read queues`, ${vpmq}, [${|
+                          \epsilon
+                          | \paren{Y, i} \conj vpmq
+                    |}]);
+                    (`VPM Y`, ${Y}, [${|
+                          \y{0}
+                          | ...
+                          | \y{63}
+                    |}]);
 
-          ${\setup-dma-load{Y}{\i4star}};
-          ${\start-dma-load{rr}};
-          ${\wait-dma-load};
+                    (`instructions`, ${\iota}, [${|
+                          \app{\mathrm{rotate}}{wr, rr, i4}
+                          | \app{\mathrm{mov}}{wr, \nu}
+                        |};
+                        ${|
+                          \setupvpmread{Y}{\i4star}
+                        |};
+                        ${|
+                          \setupvpmwrite{Y}
+                        |};
+                        ${|
+                          \setup-dma-load{Y}{\i4star}
+                          | \start-dma-load{rr}
+                        |};
+                        ${|
+                          \wait-dma-load
+                        |};
+                        ${|
+                          \setup-dma-store{Y}{\i7star}
+                          | \start-dma-store{rr}
+                        |};
+                        ${|
+                          \wait-dma-store
+                    |}]);
+            ];
 
-          ${\setup-dma-store{Y}{\i7star}};
-          ${\start-dma-store{rr}};
-          ${\wait-dma-store};
-        ]
-      }
-    }
+            \BNF.BNFs [
+                    (`condition classes`, ${cc}, [${|
+                          \Z
+                          | \N
+                          | \C
+                    |}]);
 
-    +BNF {condition classes} {
-      ${
-        \BNF{cc}![
-          ${\Z};
-          ${\N};
-          ${\C};
-        ]
-      }
-    }
+                    (`conditions`, ${c}, [${|
+                          \set{cc}
+                          | \clear{cc}
+                    |}]);
 
-    +BNF {conditions} {
-      ${
-        \BNF{c}![
-          ${\set{cc}};
-          ${\clear{cc}};
-        ]
-      }
-    }
+                    (`quantified conditions`, ${qc}, [${|
+                          \all{c}
+                          | \any{c}
+                    |}]);
 
-    +BNF {quantified conditions} {
-      ${
-        \BNF{qc}![
-          ${\all{c}};
-          ${\any{c}};
-        ]
-      }
-    }
+                    (`signals`, ${s}, [${|
+                          \epsilon
+                          | \load{tmu}
+                          % | \thread-end
+                    |}]);
 
-    +BNF {signals} {
-      ${
-        \BNF{s}![
-          ${\epsilon};
-          ${\load{tmu}};
-          % ${\thread-end};
-        ]
-      }
-    }
+                    (`conditional instructions`, ${ci}, [${|
+                          \paren{\iota, \epsilon}
+                          | \paren{\iota, c}
+                    |}]);
 
-    +BNF {conditional instructions} {
-      ${
-        \BNF{ci}![
-          ${\paren{\iota, \epsilon}};
-          ${\paren{\iota, c}};
-        ]
-      }
-    }
+                    (`conditional instructions with signals`, ${csi}, [${|
+                          \paren{ci, s}
+                    |}]);
 
-    +BNF {conditional instructions with signals} {
-      ${
-        \BNF{csi}![
-          ${\paren{ci, s}};
-        ]
-      }
-    }
+                    (`instruction sequences`, ${I}, [
+                            ${|
+                                \jmp{l} \semi-rel csi \semi-rel csi \semi-rel csi
+                            |};
+                            ${|
+                                \paren{ci, \thread-end} \semi-rel csi \semi-rel csi
+                            |};
+                            ${|
+                                csi \semi-rel I
+                            |};
+                            ${|
+                                \jmpif{qc}{l} \semi-rel csi \semi-rel csi \semi-rel csi \semi-rel I
+                            |}
+                    ]);
 
-    +p {
-      ${
-        \BNFi!{instruction sequences}{I}![
-          ${\jmp{l} \semi-rel csi \semi-rel csi \semi-rel csi};
-          ${\paren{ci, \thread-end} \semi-rel csi \semi-rel csi};
-          ${csi \semi-rel I};
-          ${\jmpif{qc}{l} \semi-rel csi \semi-rel csi \semi-rel csi \semi-rel I};
-        ]
-      }
-    }
+                    (`register contexts`, ${R}, [${|
+                          \epsilon
+                          | \overwrite{R}{rr}{arr}
+                    |}]);
 
-    +BNF {register contexts} {
-      ${
-        \BNF{R}![
-          ${\epsilon};
-          ${\overwrite{R}{rr}{arr}};
-        ]
-      }
-    }
+                    (`arrays`, ${arr}, [${|
+                          \[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n\]
+                    |}]);
 
-    +BNF {arrays} {
-      ${
-        \BNF{arr}![
-          ${\[n, n, n, n, n, n, n, n, n, n, n, n, n, n, n, n\]};
-        ]
-      }
-    }
+                    (`uniforms`, ${U}, [${|
+                          \epsilon
+                          | n \circ U
+                    |}]);
 
-    +BNF {uniforms} {
-      ${
-        \BNF{U}![
-          ${\epsilon};
-          ${n \circ U};
-        ]
-      }
-    }
+                    (`TMU`, ${T}, [${|
+                          \epsilon
+                          | arr
+                          | arr \conj arr
+                          | arr \conj arr \conj arr
+                       |};
+                       ${|
+                          arr \conj arr \conj arr \conj arr
+                    |}]);
 
-    +BNF {TMU} {
-      ${
-        \BNF{T}![
-          ${\epsilon};
-          ${arr};
-          ${arr \conj arr};
-          ${arr \conj arr \conj arr};
-          ${arr \conj arr \conj arr \conj arr};
-        ]
-      }
-    }
+                    (`VPM states`, ${V}, [${|
+                          \epsilon
+                          | \overwrite{V}{Y}{at}
+                    |}]);
 
-    +BNF {VPM states} {
-      ${
-        \BNF{V}![
-          ${\epsilon};
-          ${\overwrite{V}{Y}{at}};
-        ]
-      }
-    }
+                    (`programs`, ${P}, [${|
+                          \epsilon
+                          | \overwrite{P}{l}{I}
+                    |}]);
 
-    +BNF {programs} {
-      ${
-        \BNF{P}![
-          ${\epsilon};
-          ${\overwrite{P}{l}{I}};
-        ]
-      }
-    }
-
-    +BNF {machines} {
-      ${
-        \BNF{M}![
-          ${\tuple![
-            ${R};
-            ${U};
-            ${T};
-            ${V};
-            ${vpmq};
-            ${P};
-            ${I};
-          ]};
-        ]
-      }
+                    (`machines`, ${M}, [${|
+                          \tuple![
+                            ${R};
+                            ${U};
+                            ${T};
+                            ${V};
+                            ${vpmq};
+                            ${P};
+                            ${I};
+                          ]
+                    |}]);
+            ];
     }
   >
 
@@ -333,186 +236,118 @@ Std.document (|
       The type syntax is defined as follows:
     }
 
-    +BNF {types} {
-      ${
-        \BNF{\tau}![
-          ${b};
-          ${at};
-          ${vt};
-          ${\psi};
-        ]
-      }
-    }
+    +p {
+            \BNF.BNFs [
+            (`types`, ${\tau}, [${|
+                  b
+                  | at
+                  | vt
+                  | \psi
+            |}]);
 
-    +BNF {pointers} {
-      ${
-        \BNF{p}![
-          ${nat};
-          ${\alpha};
-          ${p + p};
-          ${nat \times p};
-        ]
-      }
-    }
+            (`pointers`, ${p}, [${|
+                  nat
+                  | \alpha
+                  | p + p
+                  | nat \times p
+            |}]);
 
-    +BNF {basic types} {
-      ${
-        \BNF{b}![
-          ${\int{i}};
-          ${\int{?}};
-          ${\float};
-          ${\ptr{p}};
-          ${\code{\state}};
-        ]
-      }
-    }
+            (`basic types`, ${b}, [${|
+                  \int{i}
+                  | \int{?}
+                  | \float
+                  | \ptr{p}
+                  | \code{\state}
+            |}]);
 
-    +BNF {array types} {
-      ${
-        \BNF{at}![
-          ${\[b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b\]};
-        ]
-      }
-    }
+            (`array types`, ${at}, [${|
+                  \[b, b, b, b, b, b, b, b, b, b, b, b, b, b, b, b\]
+            |}]);
 
-    +BNF {vector types} {
-      ${
-        \BNF{vt}![
-          ${\vec{b}{\alpha}}
-        ]
-      }
-    }
+            (`vector types`, ${vt}, [${|
+                  \vec{b}{\alpha}
+            |}]);
 
-    +BNF {register context types} {
-      ${
-        \BNF{\context}![
-          ${\epsilon};
-          ${\overwrite{\context}{rr}{at}};
-        ]
-      }
-    }
+            (`register context types`, ${\context}, [${|
+                  \epsilon
+                  | \overwrite{\context}{rr}{at}
+            |}]);
 
-    +BNF {uniforms types} {
-      ${
-        \BNF{\psi}![
-          ${\epsilon};
-          ${b \circ \psi};
-        ]
-      }
-    }
+            (`uniforms types`, ${\psi}, [${|
+                  \epsilon
+                  | b \circ \psi
+            |}]);
 
-    +BNF {TMU types} {
-      ${
-        \BNF{\Sigma}![
-          ${\epsilon};
-          ${at};
-          ${at \conj at};
-          ${at \conj at \conj at};
-          ${at \conj at \conj at \conj at};
-        ]
-      }
-    }
+            (`TMU types`, ${\Sigma}, [${|
+                  \epsilon
+                  | at
+                  | at \conj at
+                  | at \conj at \conj at
+                  | at \conj at \conj at \conj at
+            |}]);
 
-    +BNF {VPM state types} {
-      ${
-        \BNF{\vpmstate}![
-          ${\epsilon};
-          ${\overwrite{\vpmstate}{Y}{at}};
-        ]
-      }
-    }
+            (`VPM state types`, ${\vpmstate}, [${|
+                  \epsilon
+                  | \overwrite{\vpmstate}{Y}{at}
+            |}]);
 
-    +BNF {VPM write addresses} {
-      ${
-        \BNF{\vpmw-addr}![
-          ${\epsilon};
-          ${Y};
-        ]
-      }
-    }
+            (`VPM write addresses`, ${\vpmw-addr}, [${|
+                  \epsilon
+                  | Y
+            |}]);
 
-    +BNF {VPM compound types} {
-      ${
-        \BNF{C}![
-          ${\tuple![
-            ${vpmq};
-            ${\vpmstate};
-            ${\vpmw-addr};
-          ]};
-        ]
-      }
-    }
+            (`VPM compound types`, ${C}, [${|
+                  \tuple![
+                    ${vpmq};
+                    ${\vpmstate};
+                    ${\vpmw-addr};
+                  ]
+            |}]);
 
-    +BNF {uniform-access countdowns} {
-      ${
-        \BNF{u}![
-          ${\u{0}};
-          ${\u{1}};
-          ${\u{2}};
-        ]
-      }
-    }
+            (`uniform-access countdowns`, ${u}, [${|
+                  \u{0}
+                  | \u{1}
+                  | \u{2}
+            |}]);
 
-    +BNF {state types} {
-      ${
-        \BNF{\state}![
-          ${\tuple![
-            ${\context};
-            ${\psi};
-            ${u};
-            ${\Sigma};
-            ${C};
-            ${\memory-subset};
-            ${wr};
-          ]};
-        ]
-      }
-    }
+            (`state types`, ${\state}, [${|
+                  \tuple![
+                    ${\context};
+                    ${\psi};
+                    ${u};
+                    ${\Sigma};
+                    ${C};
+                    ${\memory-subset};
+                    ${wr};
+                  ]
+            |}]);
 
-    +BNF {program types} {
-      ${
-        \BNF{\phi}![
-          ${\epsilon};
-          ${\overwrite{\phi}{l}{\state}};
-        ]
-      }
-    }
+            (`program types`, ${\phi}, [${|
+                  \epsilon
+                  | \overwrite{\phi}{l}{\state}
+            |}]);
 
-    +BNF {DMA load setups} {
-      ${
-        \BNF{DLS}![
-          ${\epsilon};
-          ${\paren{Y, \i4star}};
-        ]
-      }
-    }
+            (`DMA load setups`, ${DLS}, [${|
+                  \epsilon
+                  | \paren{Y, \i4star}
+            |}]);
 
-    +BNF {DMA store setups} {
-      ${
-        \BNF{DSS}![
-          ${\epsilon};
-          ${\paren{Y, \i7star}};
-        ]
-      }
-    }
+            (`DMA store setups`, ${DSS}, [${|
+                  \epsilon
+                  | \paren{Y, \i7star}
+            |}]);
 
-    +BNF {DMA loads} {
-      ${
-        \BNF{DL}![
-          ${\epsilon};
-          ${\paren{Y, \i4star, \tau}};
-        ]
-      }
-    }
+            (`DMA loads`, ${DL}, [${|
+                  \epsilon
+                  | \paren{Y, \i4star, \tau}
+            |}]);
 
-    +BNF {DMA stores} {
-      ${
-        \BNF{DS}![
-          ${\epsilon};
-          ${\paren{Y, \i7star, \tau}};
-          ${\type-preserving};
-        ]
-      }
+            (`DMA stores`, ${DS}, [${|
+                  \epsilon
+                  | \paren{Y, \i7star, \tau}
+                  | \type-preserving
+            |}]);
+            ];
     }
 
 
