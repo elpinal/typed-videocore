@@ -504,11 +504,7 @@ Std.document (|
       +pn { pointers: }
       +p {
         ${
-          \derive{|
-            p \in \dom{\memory}
-          |}{
-            \tyjd{\memory}{p}{\app{\memory}{p}}
-          }
+          \tyjd{\memory}{p}{\app{\memory}{p}}
         }
       }
 
@@ -526,11 +522,7 @@ Std.document (|
       +pn { registers: }
       +p {
         ${
-          \derive{|
-            rr \in \app{dom}{\context}
-          |}{
-            \tyjd{\context}{rr}{\app{\context}{rr}}
-          }
+          \tyjd{\context}{rr}{\app{\context}{rr}}
 
           \and-also
 
@@ -583,11 +575,7 @@ Std.document (|
       +pn { VPM: }
       +p {
         ${
-            \derive{|
-              Y \in \dom{\vpmstate}
-            |}{
-              \tyjd{\vpmstate}{Y}{\app{\vpmstate}{Y}}
-            }
+          \tyjd{\vpmstate}{Y}{\app{\vpmstate}{Y}}
         }
       }
 
@@ -626,8 +614,6 @@ Std.document (|
         ${
           \derive{|
             rr \syntneq wr_{before}
-          |
-            rr \in \app{dom}{\context}
           |
             at \synteq \app{rotate}{\app{\context}{rr}, i4}
           |}{
@@ -820,8 +806,6 @@ Std.document (|
         ${
           \derive{|
             rr \syntneq wr_{before}
-          |
-            rr \in \app{dom}{\context}
           |
             at \synteq \app{rotate}{\app{\context}{rr}, i4}
           |}{
@@ -1433,11 +1417,7 @@ Std.document (|
       +pn { labels: }
       +p {
         ${
-          \derive{|
-            l \in \dom{\phi}
-          |}{
-            \tyjd{\phi}{l}{\app{\phi}{l}}
-          }
+          \tyjd{\phi}{l}{\app{\phi}{l}}
         }
       }
 
@@ -1618,7 +1598,7 @@ Std.document (|
         }
 
         +p {
-          ${\app{\unwrap-ptr}{\ptr{p}} \def \app{\memory}{p} \if p \in \dom{\memory}}
+          ${\app{\unwrap-ptr}{\ptr{p}} \def \app{\memory}{p}}
         }
 
         +p {
