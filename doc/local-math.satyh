@@ -180,9 +180,6 @@ let-inline ctx \space = inline-skip 10pt
 let-inline ctx \breakable =
   discretionary 0 inline-nil inline-fil inline-fil
 
-let-inline ctx \breakable1 =
-  discretionary 0 inline-nil inline-fil (inline-fil ++ inline-skip (0pt -' 10pt))
-
 let-math \derivel ms m2 =
   text-in-math MathOrd (fun ctx -> (
     let cw = get-text-width ctx in

@@ -5,8 +5,8 @@
 @require: proof
 
 Std.document (|
-  title = {\space; VideoCore IV \breakable; Typed Assembly Language};
-  subtitle = {\breakable1; Version 0.1};
+  title = {VideoCore IV \fil-both; Typed Assembly Language};
+  subtitle = {\fil-both; Version 0.1};
   author = {El Pin Al};
   show-title = true;
   show-toc = true;
