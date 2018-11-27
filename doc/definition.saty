@@ -95,13 +95,9 @@ Std.document (|
                           | ...
                           | \mathrm{rb31}
                         |}]);
-                    (`TMU`, ${tmu}, [${|
+                    (`TMU registers`, ${tmu}, [${|
                           \tmu{0}
                           | \tmu{1}
-                    |}]);
-                    (`VPM read queues`, ${vpmq}, [${|
-                          \epsilon
-                          | \paren{Y, i} \conj vpmq
                     |}]);
                     (`VPM Y`, ${Y}, [${|
                           \y{0}
@@ -181,7 +177,15 @@ Std.document (|
                                 \jmpif{qc}{l} \semi-rel csi \semi-rel csi \semi-rel csi \semi-rel I
                             |}
                     ]);
+            ];
+        }
 
+        +pn {
+                Abstract machine:
+        }
+
+        +pn {
+              \BNF.BNFs [
                     (`register contexts`, ${R}, [${|
                           \epsilon
                           | \overwrite{R}{rr}{arr}
@@ -214,6 +218,11 @@ Std.document (|
                     (`programs`, ${P}, [${|
                           \epsilon
                           | \overwrite{P}{l}{I}
+                    |}]);
+
+                    (`VPM read queues`, ${vpmq}, [${|
+                          \epsilon
+                          | \paren{Y, i} \conj vpmq
                     |}]);
 
                     (`machines`, ${M}, [${|
